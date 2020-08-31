@@ -39,6 +39,12 @@ dev_dependencies:
   http: ^0.12.2
   qr_flutter: ^3.1.0
   fluttertoast: ^7.0.2
+  flutter_launcher_icons: ^0.7.5
+
+flutter_icons:
+  image_path: "assets/jitenge.png"
+  android: true
+  ios: true
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
