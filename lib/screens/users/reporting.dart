@@ -1,4 +1,3 @@
-
 import 'dart:async';
 import 'dart:io';
 import 'dart:convert';
@@ -522,18 +521,24 @@ Future<FollowUp> _showDialog(
     String comment) async {
   final String apiUrl = 'http://ears-covid.mhealthkenya.co.ke/api/response';
   try {
+    String token =
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjbGllbnQiOnsiaWQiOjEsInBob25lX251bWJlciI6IisyNTQ3MjM3ODMwMjEiLCJmaXJzdF9uYW1lIjoicGF0aWVudCIsImNyZWF0ZWRfYXQiOiIyMDIwLTAzLTAxIiwiY3JlYXRlZEF0IjoiMjAyMC0wMy0wMSIsInVwZGF0ZWRBdCI6IjIwMjAtMDMtMTQifSwiaWF0IjoxNTg0MTkxNjUzfQ.dEgJySZ33Mi4jE6lodOgbsTjKMuT7xfW-EkhHKtv-Oc";
+
     final response = await http.post(apiUrl, headers: {
-      HttpHeaders.authorizationHeader:
-          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjbGllbnQiOnsiaWQiOjEsInBob25lX251bWJlciI6IisyNTQ3MjM3ODMwMjEiLCJmaXJzdF9uYW1lIjoicGF0aWVudCIsImNyZWF0ZWRfYXQiOiIyMDIwLTAzLTAxIiwiY3JlYXRlZEF0IjoiMjAyMC0wMy0wMSIsInVwZGF0ZWRBdCI6IjIwMjAtMDMtMTQifSwiaWF0IjoxNTg0MTkxNjUzfQ.dEgJySZ33Mi4jE6lodOgbsTjKMuT7xfW-EkhHKtv-Oc"
+      //'Content-type': 'application/json',
+      'Accept': '*/*',
+      'Authorization': 'Bearer $token'
+      //HttpHeaders.authorizationHeader:
+      //"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjbGllbnQiOnsiaWQiOjEsInBob25lX251bWJlciI6IisyNTQ3MjM3ODMwMjEiLCJmaXJzdF9uYW1lIjoicGF0aWVudCIsImNyZWF0ZWRfYXQiOiIyMDIwLTAzLTAxIiwiY3JlYXRlZEF0IjoiMjAyMC0wMy0wMSIsInVwZGF0ZWRBdCI6IjIwMjAtMDMtMTQifSwiaWF0IjoxNTg0MTkxNjUzfQ.dEgJySZ33Mi4jE6lodOgbsTjKMuT7xfW-EkhHKtv-Oc"
     }, body: {
       "client_id": json.encode(clientId),
-      "thermal_gun": json.encode(thermalGun),
-      "body_temp": json.encode(bodyTemp),
-      "fever": json.encode(fever),
-      "cough": json.encode(cough),
-      "difficult_breathing": json.encode(difficultBreathing),
+      "thermal_gun": thermalGun,
+      "body_temp": bodyTemp,
+      "fever": fever,
+      "cough": cough,
+      "difficult_breathing": difficultBreathing,
       "day": json.encode(day),
-      "comment": json.encode(comment)
+      "comment": comment
     });
     //FollowUp followUp;
 
@@ -542,7 +547,7 @@ Future<FollowUp> _showDialog(
       print(responseString);
       print(clientId);
       print(bodyTemp);
-      print('bodyTemp');
+      //print('bodyTemp');
       print(fever);
       print(cough);
       print(difficultBreathing);
@@ -557,12 +562,23 @@ Future<FollowUp> _showDialog(
             backgroundColor: Colors.green,
             textColor: Colors.white,
             fontSize: 16.0);
-      } else if (responseString.contains('completed')) {
+      } else if (responseString.contains('completed') ||
+          responseString.contains('zilikamilika')) {
         Fluttertoast.showToast(
             msg: "Your 14 days of reporting were completed. Thank you",
             toastLength: Toast.LENGTH_SHORT,
             gravity: ToastGravity.CENTER_RIGHT,
             timeInSecForIosWeb: 1,
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+            fontSize: 16.0);
+      } else if (responseString.contains('already recorded')) {
+        Fluttertoast.showToast(
+            msg:
+                "Your response for day 7 was already recorded more than once and your next submission is expected tomorrow. For any further information kindly call EOC.",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.CENTER_RIGHT,
+            timeInSecForIosWeb: 3,
             backgroundColor: Colors.red,
             textColor: Colors.white,
             fontSize: 16.0);
