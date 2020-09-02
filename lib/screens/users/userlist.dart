@@ -4,11 +4,11 @@ import 'package:flutter/foundation.dart';
 
 import 'package:flutter/material.dart';
 import 'package:jitenge/screens/authenticate/sign-in.dart';
-import 'package:jitenge/screens/home/home.dart';
+
 import 'package:jitenge/screens/users/reporting.dart';
 import 'package:jitenge/screens/users/userdata.dart';
 import 'package:url_launcher/url_launcher.dart' as UrlLauncher;
-import 'package:flutter/services.dart';
+
 import 'package:http/http.dart' as http;
 import 'userdata.dart';
 import 'package:qr_flutter/qr_flutter.dart';
@@ -16,6 +16,28 @@ import 'package:fluttertoast/fluttertoast.dart';
 
 enum SingingCharacter { report_symptoms, show_qr }
 String character = 'report_symptoms';
+
+Future<Client> fetchUser(phone_no) async {
+  final response = await http.get(
+      'http://ears-covid.mhealthkenya.co.ke/api/quarantine_contacts/$phone_no');
+
+  if (response.statusCode == 200) {
+    // If the server did return a 200 OK response,
+    // then parse the JSON.
+    print(response.body);
+    return clientFromJson(json.decode(response.body));
+  } else {
+    // If the server did not return a 200 OK response,
+    // then throw an exception.
+    throw Exception('Failed to load album');
+  }
+}
+
+void main() {
+  runApp(
+    new UserList(),
+  );
+}
 
 class UserList extends StatefulWidget {
   final String phone_no;
@@ -28,7 +50,8 @@ class UserList extends StatefulWidget {
 }
 
 class _UserListState extends State<UserList> {
-  List<dynamic> _clients;
+  Future<Client> _clients;
+  //Client _user;
   bool _loading;
   int _currentIndex = 0;
   final tabs = [
@@ -40,22 +63,22 @@ class _UserListState extends State<UserList> {
   void initState() {
     String phone_no = widget.phone_no;
     int client_id = widget.client_id;
-    fetchUser(phone_no).then((uclients) {
-      _clients = uclients;
-      Fluttertoast.showToast(
-          msg: "Login Successfull.",
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.CENTER_LEFT,
-          timeInSecForIosWeb: 1,
-          backgroundColor: Colors.green,
-          textColor: Colors.white,
-          fontSize: 16.0);
-    });
+    //fetchUser(phone_no).then((uclients) {
+    //_clients = uclients;
+
+    //_user = uclients;
+    Fluttertoast.showToast(
+        msg: "Login Successfull.",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.CENTER_LEFT,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.green,
+        textColor: Colors.white,
+        fontSize: 16.0);
+    // });
+    _clients = fetchUser(phone_no);
     super.initState();
   }
-
-  static const TextStyle optionStyle =
-      TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
 
   @override
   Widget build(BuildContext context) {
@@ -282,15 +305,29 @@ class _UserListState extends State<UserList> {
               ),
             ),
             SizedBox(height: 30.0),
+            //Text(_clients.firstName),
+            FutureBuilder<Client>(
+              future: _clients,
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  return Text(snapshot.data.firstName);
+                } else if (snapshot.hasError) {
+                  return Text("${snapshot.error}");
+                }
+
+                // By default, show a loading spinner.
+                return CircularProgressIndicator();
+              },
+            ),
             Flexible(
               child: new ListView.builder(
                 itemBuilder: (context, index) {
                   //Client users = _clients[index];
                   return ListTile(
-                      title: Text('${_clients}'),
-                      subtitle: Text('${_clients}'),
-                      onTap: () => _userModal(
-                          context, setState, '$_clients', client_id));
+                      title: Text('$_clients'),
+                      subtitle: Text('34872130'),
+                      onTap: () =>
+                          _userModal(context, setState, 'ken', client_id));
                 },
                 itemCount: 1,
               ),
@@ -353,30 +390,6 @@ class _UserListState extends State<UserList> {
   }
 }
 
-void main() {
-  runApp(
-    new UserList(),
-  );
-}
-
-Future<List<dynamic>> fetchUser(phone_no) async {
-  var url = 'http://ears-covid.mhealthkenya.co.ke/api/search/client';
-  final response = await http.post(url, body: {"phone_no": '254748050434'});
-  List<Client> uclients = [];
-  if (response.statusCode == 200) {
-    //String jsonProduct = response;
-    final jsonResponse = json.decode(response.body);
-    User product = new User.fromJson(jsonResponse);
-    print(product.clients[0]);
-    uclients = product.clients;
-    print(jsonResponse);
-    print(phone_no);
-    print('success');
-    return uclients;
-  }
-  return uclients;
-}
-
 Future<bool> _userModal(
     BuildContext context, StateSetter setState, String name, int client_id) {
   return showDialog(
@@ -391,40 +404,39 @@ Future<bool> _userModal(
         actions: <Widget>[
           StatefulBuilder(
             builder: (context, setState) {
-              return Expanded(
-                child: SizedBox(
-                  width: 340,
-                  height: 120,
-                  child: Column(
-                    children: [
-                      RadioListTile<String>(
-                        activeColor: Colors.red,
-                        title: const Text('Report Symptoms'),
-                        value: 'report_symptoms',
-                        groupValue: character,
-                        onChanged: (value) {
-                          setState(() {
-                            character = value;
-                            print(character);
-                            print(name);
-                          });
-                        },
-                      ),
-                      RadioListTile<String>(
-                        title: const Text('Show QR Code'),
-                        activeColor: Colors.red,
-                        value: 'show_qr',
-                        groupValue: character,
-                        onChanged: (String value) {
-                          setState(() {
-                            character = value;
-                            print(character);
-                          });
-                        },
-                      ),
-                    ],
-                  ),
+              return SizedBox(
+                width: 340,
+                height: 120,
+                child: Column(
+                  children: [
+                    RadioListTile<String>(
+                      activeColor: Colors.red,
+                      title: const Text('Report Symptoms'),
+                      value: 'report_symptoms',
+                      groupValue: character,
+                      onChanged: (value) {
+                        setState(() {
+                          character = value;
+                          print(character);
+                          print(name);
+                        });
+                      },
+                    ),
+                    RadioListTile<String>(
+                      title: const Text('Show QR Code'),
+                      activeColor: Colors.red,
+                      value: 'show_qr',
+                      groupValue: character,
+                      onChanged: (String value) {
+                        setState(() {
+                          character = value;
+                          print(character);
+                        });
+                      },
+                    ),
+                  ],
                 ),
+                //  ),
               );
             },
           ),
@@ -470,7 +482,7 @@ Future<bool> _showQRModal(
   return showDialog(
       context: context,
       child: AlertDialog(
-        title: Text('QR Code for ${name}.'),
+        title: Text('QR Code for ken.'),
         //content: Text('You can always log back in...'),
         //contentPadding: EdgeInsets.fromLTRB(10.0, 0.0, 0.0, 0.0),
         shape: RoundedRectangleBorder(
@@ -479,25 +491,24 @@ Future<bool> _showQRModal(
         actions: <Widget>[
           StatefulBuilder(
             builder: (context, setState) {
-              return Expanded(
-                child: SizedBox(
-                  width: 400,
-                  height: 360,
-                  child: Column(
-                    children: <Widget>[
-                      QrImage(
-                        data: name,
-                        size: 300,
-                      ),
-                      FlatButton(
-                        onPressed: () {
-                          Navigator.of(context).pop(false);
-                        },
-                        child: Text('Cancel'),
-                      ),
-                    ],
-                  ),
+              return SizedBox(
+                width: 400,
+                height: 360,
+                child: Column(
+                  children: <Widget>[
+                    QrImage(
+                      data: name,
+                      size: 300,
+                    ),
+                    FlatButton(
+                      onPressed: () {
+                        Navigator.of(context).pop(false);
+                      },
+                      child: Text('Cancel'),
+                    ),
+                  ],
                 ),
+                //  ),
               );
             },
           ),
