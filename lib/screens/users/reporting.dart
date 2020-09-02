@@ -1,9 +1,9 @@
 import 'dart:async';
-import 'dart:io';
+
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:jitenge/screens/authenticate/sign-in.dart';
-import 'package:jitenge/screens/home/home.dart';
+
 import 'package:jitenge/screens/users/userlist.dart';
 import 'package:url_launcher/url_launcher.dart' as UrlLauncher;
 import 'package:http/http.dart' as http;
@@ -510,6 +510,7 @@ class _ReportState extends State<Report> {
   }
 }
 
+// ignore: missing_return
 Future<FollowUp> _showDialog(
     String difficultBreathing,
     String fever,
@@ -605,16 +606,7 @@ Future<FollowUp> _showDialog(
           fontSize: 16.0);
       return null;
     }
-  } catch (error) {
-    Fluttertoast.showToast(
-        msg: error.toString(),
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.CENTER_RIGHT,
-        timeInSecForIosWeb: 1,
-        backgroundColor: Colors.red,
-        textColor: Colors.white,
-        fontSize: 16.0);
-  }
+  } catch (error) {}
 }
 
 Future<bool> _exitApp(BuildContext context) {

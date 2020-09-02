@@ -3,7 +3,7 @@ import 'package:international_phone_input/international_phone_input.dart';
 import 'package:jitenge/screens/authenticate/login.dart';
 import 'package:jitenge/screens/users/userlist.dart';
 import 'sign-up.dart';
-import 'package:flutter/services.dart';
+
 import 'package:http/http.dart' as http;
 import 'dart:io';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -283,6 +283,7 @@ class _SignInState extends State<SignIn> {
   }
 }
 
+// ignore: missing_return
 Future<Login> _showDialog(String phone_no, String passport_no) async {
   final String apiUrl = 'http://ears-covid.mhealthkenya.co.ke/api/login';
 
