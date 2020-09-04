@@ -346,7 +346,9 @@ class _SignUpState extends State<SignUp> {
                     //padding: EdgeInsets.fromLTRB(100.0, 5.0, 100.0, 5.0),
                     //color: Colors.blue[800],
                     // elevation: 2.0,
-                    onPressed: () {},
+                    onPressed: () {
+                      notYet(context);
+                    },
                     label: Text('SignUp'),
                   ),
                 ],
@@ -368,9 +370,11 @@ class _SignUpState extends State<SignUp> {
                     color: Colors.white,
                     //elevation: 2.0,
                     onPressed: () {
-                      Navigator.push(
+                      Navigator.pushAndRemoveUntil(
                         context,
+                        //arguments: {},
                         MaterialPageRoute(builder: (context) => SignIn()),
+                        (Route<dynamic> route) => false,
                       );
                     },
                     child: const Text(
@@ -390,4 +394,33 @@ class _SignUpState extends State<SignUp> {
       ),
     );
   }
+}
+
+notYet(BuildContext context) {
+  return showDialog(
+      context: context,
+      child: AlertDialog(
+        title: Text('Service not available.'),
+        //content: Text('You can always log back in...'),
+        //contentPadding: EdgeInsets.fromLTRB(10.0, 0.0, 0.0, 0.0),
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15.0),
+            side: BorderSide(color: Colors.white)),
+        actions: <Widget>[
+          StatefulBuilder(
+            builder: (context, setState) {
+              return SizedBox(
+                width: 400,
+                height: 60,
+                child: Column(
+                  children: <Widget>[
+                    Text('We will notify you once this feature is ready.'),
+                  ],
+                ),
+                //  ),
+              );
+            },
+          ),
+        ],
+      ));
 }
