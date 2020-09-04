@@ -83,7 +83,7 @@ class _SignInState extends State<SignIn> {
             ),
             SizedBox(height: 10.0),
             Text(
-              'Please enter your phone number without the preceding 0 as well as your national identification number or passport number for air travellers.' +
+              'Please enter your phone number, kindly do not include the country code.' +
                   '\n' +
                   'This is a one time validation process.',
               style: TextStyle(
@@ -139,7 +139,7 @@ class _SignInState extends State<SignIn> {
                             borderSide:
                                 BorderSide(color: Colors.grey, width: 1.0),
                           ),
-                          hintText: 'National ID Number or Passport Number'),
+                          hintText: 'National ID or Passport Number'),
                     ),
                     SizedBox(height: 15.0),
                     FloatingActionButton.extended(
@@ -158,7 +158,7 @@ class _SignInState extends State<SignIn> {
                               backgroundColor: Colors.red,
                               textColor: Colors.white,
                               fontSize: 16.0);
-                        } else if (passport_no.length < 6) {
+                        } else if (passport_no.length < 2) {
                           Fluttertoast.showToast(
                               msg: "Please enter a valid ID/Passport Number",
                               toastLength: Toast.LENGTH_SHORT,
@@ -183,17 +183,21 @@ class _SignInState extends State<SignIn> {
                                   backgroundColor: Colors.red,
                                   textColor: Colors.white,
                                   fontSize: 16.0);
-                            } else if (_user.success == true &&
-                                _user.isHcw != 0) {
-                              Navigator.push(
+                            } else if (_user.isHcw == 0 &&
+                                _user.success == true &&
+                                _user.clientId != '') {
+                              Navigator.pushAndRemoveUntil(
                                 context,
+                                //arguments: {},
                                 MaterialPageRoute(
                                     builder: (context) => UserList(
                                         language: _user.language,
                                         phone_no: phone_no,
                                         client_id: _user.clientId)),
+                                (Route<dynamic> route) => false,
                               );
-                            } else if (_user.success == false && user != null) {
+                            } else if (_user.success == false &&
+                                _user != null) {
                               Fluttertoast.showToast(
                                   msg:
                                       "You are not authorised to access this resource.",
@@ -214,27 +218,15 @@ class _SignInState extends State<SignIn> {
                                   textColor: Colors.white,
                                   fontSize: 16.0);
                             } else {
-                              if (_user.success == true) {
-                                Navigator.pushAndRemoveUntil(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => UserList(
-                                          language: _user.language,
-                                          phone_no: phone_no,
-                                          client_id: _user.clientId)),
-                                  (Route<dynamic> route) => false,
-                                );
-                              } else {
-                                Fluttertoast.showToast(
-                                    msg:
-                                        "Please ensure your details are correct and you have internet connection.",
-                                    toastLength: Toast.LENGTH_SHORT,
-                                    gravity: ToastGravity.CENTER_RIGHT,
-                                    timeInSecForIosWeb: 1,
-                                    backgroundColor: Colors.red,
-                                    textColor: Colors.white,
-                                    fontSize: 16.0);
-                              }
+                              Fluttertoast.showToast(
+                                  msg:
+                                      "Please ensure your details are correct and you have internet connection.",
+                                  toastLength: Toast.LENGTH_SHORT,
+                                  gravity: ToastGravity.CENTER_RIGHT,
+                                  timeInSecForIosWeb: 1,
+                                  backgroundColor: Colors.red,
+                                  textColor: Colors.white,
+                                  fontSize: 16.0);
                             }
                           });
                         }
@@ -286,7 +278,7 @@ class _SignInState extends State<SignIn> {
 
 // ignore: missing_return
 Future<Login> _showDialog(String phone_no, String passport_no) async {
-  final String apiUrl = 'http://ears-covid.mhealthkenya.co.ke/api/login';
+  final String apiUrl = 'http://ears-api.mhealthkenya.co.ke/api/login';
 
   final response = await http.post(apiUrl, headers: {
     HttpHeaders.authorizationHeader:

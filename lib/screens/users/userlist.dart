@@ -65,20 +65,24 @@ class _UserListState extends State<UserList> {
   void initState() {
     String phone_no = widget.phone_no;
     int client_id = widget.client_id;
-    //fetchUser(phone_no).then((uclients) {
-    //_clients = uclients;
+    _clients = fetchUser(phone_no);
 
-    //_user = uclients;
+    if (client_id == null) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => SignIn()),
+      );
+    }
+
     Fluttertoast.showToast(
-        msg: "Login Successfull.",
+        msg: "Login Successfull. $client_id",
         toastLength: Toast.LENGTH_SHORT,
         gravity: ToastGravity.CENTER_LEFT,
         timeInSecForIosWeb: 1,
         backgroundColor: Colors.green,
         textColor: Colors.white,
         fontSize: 16.0);
-    // });
-    _clients = fetchUser(phone_no);
+
     super.initState();
   }
 
@@ -295,7 +299,7 @@ class _UserListState extends State<UserList> {
               ),
             ),
             SizedBox(height: 10.0),
-            Text('$client_id'),
+            //Text('$client_id'),
             Text(
               'Please tap on the name of a user to report on their behalf, or display their QR Code.',
               style: TextStyle(
@@ -323,8 +327,12 @@ class _UserListState extends State<UserList> {
                           return ListTile(
                               title: Text(yourPosts[index].firstName),
                               subtitle: Text(yourPosts[index].passportNumber),
-                              onTap: () => _userModal(context, setState,
-                                  yourPosts[index].contactUuid, client_id));
+                              onTap: () => _userModal(
+                                  context,
+                                  setState,
+                                  yourPosts[index].contactUuid,
+                                  yourPosts[index].id,
+                                  yourPosts[index].firstName));
                         });
                   } else if (snapshot.hasError) {
                     return Text("${snapshot.error}");
@@ -335,9 +343,6 @@ class _UserListState extends State<UserList> {
                 },
               ),
               //],
-            ),
-            Flexible(
-              child: new Text('data'),
             ),
             //Text(_clients),
             SizedBox(height: 3.0),
@@ -353,12 +358,7 @@ class _UserListState extends State<UserList> {
             padding: EdgeInsets.fromLTRB(0.0, 0.0, 50.0, 0.0),
             color: Colors.white,
             //elevation: 2.0,
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => UserList()),
-              );
-            },
+            onPressed: () {},
             icon: Icon(Icons.home, color: Colors.blue[400]),
             label: Text(
               'Home',
@@ -374,12 +374,7 @@ class _UserListState extends State<UserList> {
             color: Colors.white,
             //elevation: 2.0,
             onPressed: () {
-              Navigator.pushAndRemoveUntil(
-                context,
-                //arguments: {},
-                MaterialPageRoute(builder: (context) => SignIn()),
-                (Route<dynamic> route) => false,
-              );
+              _exitApp(context);
             },
             icon: Icon(Icons.exit_to_app, color: Colors.blue[400]),
             label: Text(
@@ -397,12 +392,12 @@ class _UserListState extends State<UserList> {
   }
 }
 
-Future<bool> _userModal(
-    BuildContext context, StateSetter setState, String name, int client_id) {
+Future<bool> _userModal(BuildContext context, StateSetter setState, String name,
+    int clientId, String firstname) {
   return showDialog(
       context: context,
       child: AlertDialog(
-        title: Text('Please Select an option for ${client_id}.'),
+        title: Text('Please Select an option for $firstname.'),
         //content: Text('You can always log back in...'),
         //contentPadding: EdgeInsets.fromLTRB(10.0, 0.0, 0.0, 0.0),
         shape: RoundedRectangleBorder(
@@ -470,10 +465,11 @@ Future<bool> _userModal(
                       context,
                       //arguments: {},
                       MaterialPageRoute(
-                          builder: (context) => Report(clientId: client_id)),
+                          builder: (context) =>
+                              Report(clientId: clientId, firstName: firstname)),
                     );
                   } else {
-                    _showQRModal(context, setState, name);
+                    _showQRModal(context, setState, name, firstname);
                   }
                 },
                 child: Text('Continue'),
@@ -485,11 +481,11 @@ Future<bool> _userModal(
 }
 
 Future<bool> _showQRModal(
-    BuildContext context, StateSetter setState, String name) {
+    BuildContext context, StateSetter setState, String name, String firstname) {
   return showDialog(
       context: context,
       child: AlertDialog(
-        title: Text('QR Code for ken.'),
+        title: Text('QR Code for $firstname'),
         //content: Text('You can always log back in...'),
         //contentPadding: EdgeInsets.fromLTRB(10.0, 0.0, 0.0, 0.0),
         shape: RoundedRectangleBorder(
@@ -541,10 +537,11 @@ Future<bool> _exitApp(BuildContext context) {
             ),
             FlatButton(
               onPressed: () {
-                Navigator.push(
+                Navigator.pushAndRemoveUntil(
                   context,
                   //arguments: {},
                   MaterialPageRoute(builder: (context) => SignIn()),
+                  (Route<dynamic> route) => false,
                 );
                 //SystemChannels.platform.invokeMethod('SystemNavigator.pop');
               },

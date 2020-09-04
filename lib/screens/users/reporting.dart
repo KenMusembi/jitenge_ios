@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:jitenge/screens/authenticate/sign-in.dart';
 
 import 'package:jitenge/screens/users/userlist.dart';
@@ -12,7 +13,8 @@ import 'package:fluttertoast/fluttertoast.dart';
 
 class Report extends StatefulWidget {
   final int clientId;
-  Report({Key key, this.clientId}) : super(key: key);
+  String firstName;
+  Report({Key key, this.clientId, this.firstName}) : super(key: key);
 
   @override
   _ReportState createState() => _ReportState();
@@ -45,10 +47,11 @@ class _ReportState extends State<Report> {
   @override
   Widget build(BuildContext context) {
     int clientId = widget.clientId;
+    String firstName = widget.firstName;
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text('Jitenge - Report health Status'),
+        title: Text('Jitenge - Self Report'),
         centerTitle: true,
         backgroundColor: Colors.blue,
         elevation: 0.0,
@@ -258,6 +261,12 @@ class _ReportState extends State<Report> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: <Widget>[
+                        firstName == null
+                            ? Container()
+                            : Text('Reporting for $firstName'),
+                        SizedBox(
+                          height: 5.0,
+                        ),
                         Text(
                           'Please enter the fields below.',
                           style: TextStyle(
@@ -272,7 +281,7 @@ class _ReportState extends State<Report> {
                         _user == null
                             ? Container()
                             : Text(
-                                'Your temperature is ${_user.success}  and your comment is ${_user.message}.'),
+                                'You have successfully reported for $firstName. That is it for today.'),
                         Form(
                           key: _formkey,
                           child: Column(
@@ -465,12 +474,7 @@ class _ReportState extends State<Report> {
             color: Colors.white,
             //elevation: 2.0,
             onPressed: () {
-              Navigator.pushAndRemoveUntil(
-                context,
-                //arguments: {},
-                MaterialPageRoute(builder: (context) => UserList()),
-                (Route<dynamic> route) => false,
-              );
+              Navigator.pop(context);
             },
             icon: Icon(Icons.home, color: Colors.blue[400]),
             label: Text(
@@ -487,12 +491,7 @@ class _ReportState extends State<Report> {
             color: Colors.white,
             //elevation: 2.0,
             onPressed: () {
-              Navigator.pushAndRemoveUntil(
-                context,
-                //arguments: {},
-                MaterialPageRoute(builder: (context) => SignIn()),
-                (Route<dynamic> route) => false,
-              );
+              _exitApp(context);
             },
             icon: Icon(Icons.exit_to_app, color: Colors.blue[400]),
             label: Text(
@@ -633,6 +632,8 @@ Future<bool> _exitApp(BuildContext context) {
                   MaterialPageRoute(builder: (context) => SignIn()),
                   (Route<dynamic> route) => false,
                 );
+                SystemChannels.platform
+                    .invokeMethod<void>('SystemNavigator.pop');
                 //SystemChannels.platform.invokeMethod('SystemNavigator.pop');
               },
               child: Text('Yes'),
