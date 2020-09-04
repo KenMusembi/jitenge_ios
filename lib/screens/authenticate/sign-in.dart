@@ -172,7 +172,7 @@ class _SignInState extends State<SignIn> {
                               await _showDialog(phone_no, passport_no);
                           setState(() {
                             _user = user;
-                            String message = _user.message;
+                            // String message = _user.message;
                             if (_user.isHcw == 1) {
                               Fluttertoast.showToast(
                                   msg:
@@ -193,9 +193,10 @@ class _SignInState extends State<SignIn> {
                                         phone_no: phone_no,
                                         client_id: _user.clientId)),
                               );
-                            } else if (_user.success == false) {
+                            } else if (_user.success == false && user != null) {
                               Fluttertoast.showToast(
-                                  msg: "$message",
+                                  msg:
+                                      "You are not authorised to access this resource.",
                                   toastLength: Toast.LENGTH_SHORT,
                                   gravity: ToastGravity.CENTER_RIGHT,
                                   timeInSecForIosWeb: 1,
@@ -313,7 +314,7 @@ Future<Login> _showDialog(String phone_no, String passport_no) async {
       }
     } else {
       Fluttertoast.showToast(
-          msg: "Please ensure you are have a steady internet connection",
+          msg: "Please ensure you have a steady internet connection",
           toastLength: Toast.LENGTH_SHORT,
           gravity: ToastGravity.CENTER_RIGHT,
           timeInSecForIosWeb: 1,
@@ -323,7 +324,7 @@ Future<Login> _showDialog(String phone_no, String passport_no) async {
     }
   } catch (e) {
     Fluttertoast.showToast(
-        msg: "Please ensure you are have a steady internet connection",
+        msg: "Please ensure you have a steady internet connection",
         toastLength: Toast.LENGTH_SHORT,
         gravity: ToastGravity.CENTER_RIGHT,
         timeInSecForIosWeb: 1,
