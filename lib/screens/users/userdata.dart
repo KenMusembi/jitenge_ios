@@ -4,9 +4,11 @@
 
 import 'dart:convert';
 
-Client clientFromJson(String str) => Client.fromJson(json.decode(str));
+List<Client> clientFromJson(String str) =>
+    List<Client>.from(json.decode(str).map((x) => Client.fromJson(x)));
 
-String clientToJson(Client data) => json.encode(data.toJson());
+String clientToJson(List<Client> data) =>
+    json.encode(List<dynamic>.from(data.map((x) => x.toJson())));
 
 class Client {
   Client({

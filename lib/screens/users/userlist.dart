@@ -17,15 +17,17 @@ import 'package:fluttertoast/fluttertoast.dart';
 enum SingingCharacter { report_symptoms, show_qr }
 String character = 'report_symptoms';
 
-Future<Client> fetchUser(phone_no) async {
-  final response = await http.get(
-      'http://ears-covid.mhealthkenya.co.ke/api/quarantine_contacts/$phone_no');
+Future<List<Client>> fetchUser(phone_no) async {
+  final response = await http
+      .get('https://ears.health.go.ke/quarantine_contacts/+$phone_no');
 
   if (response.statusCode == 200) {
     // If the server did return a 200 OK response,
     // then parse the JSON.
     print(response.body);
-    return clientFromJson(json.decode(response.body));
+    //return clientFromJson(json.decode(response.body));
+    return List<Client>.from(
+        json.decode(response.body).map((x) => Client.fromJson(x)));
   } else {
     // If the server did not return a 200 OK response,
     // then throw an exception.
@@ -50,7 +52,7 @@ class UserList extends StatefulWidget {
 }
 
 class _UserListState extends State<UserList> {
-  Future<Client> _clients;
+  Future<List<Client>> _clients;
   //Client _user;
   bool _loading;
   int _currentIndex = 0;
@@ -306,31 +308,36 @@ class _UserListState extends State<UserList> {
             ),
             SizedBox(height: 30.0),
             //Text(_clients.firstName),
-            FutureBuilder<Client>(
-              future: _clients,
-              builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  return Text(snapshot.data.firstName);
-                } else if (snapshot.hasError) {
-                  return Text("${snapshot.error}");
-                }
+            Flexible(
+              child: new FutureBuilder<List<Client>>(
+                future: _clients,
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    List<Client> yourPosts = snapshot.data;
+                    //List<Post> yourPosts = snapshot.data.posts;
+                    return ListView.builder(
+                        itemCount: yourPosts.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          // Whatever sort of things you want to build
+                          // with your Post object at yourPosts[index]:
+                          return ListTile(
+                              title: Text(yourPosts[index].firstName),
+                              subtitle: Text(yourPosts[index].passportNumber),
+                              onTap: () => _userModal(context, setState,
+                                  yourPosts[index].contactUuid, client_id));
+                        });
+                  } else if (snapshot.hasError) {
+                    return Text("${snapshot.error}");
+                  }
 
-                // By default, show a loading spinner.
-                return CircularProgressIndicator();
-              },
+                  // By default, show a loading spinner.
+                  return CircularProgressIndicator();
+                },
+              ),
+              //],
             ),
             Flexible(
-              child: new ListView.builder(
-                itemBuilder: (context, index) {
-                  //Client users = _clients[index];
-                  return ListTile(
-                      title: Text('$_clients'),
-                      subtitle: Text('34872130'),
-                      onTap: () =>
-                          _userModal(context, setState, 'ken', client_id));
-                },
-                itemCount: 1,
-              ),
+              child: new Text('data'),
             ),
             //Text(_clients),
             SizedBox(height: 3.0),
