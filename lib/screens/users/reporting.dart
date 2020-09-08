@@ -530,7 +530,7 @@ Future<FollowUp> _showDialog(
     String bodyTemp,
     int day,
     String comment) async {
-  final String apiUrl = 'http://ears-covid.mhealthkenya.co.ke/api/response';
+  final String apiUrl = 'http://ears-api.mhealthkenya.co.ke/api/response';
   if (bodyTemp == '' || bodyTemp == null) {
     bodyTemp = '0';
   }
