@@ -468,6 +468,8 @@ Future<bool> _userModal(BuildContext context, StateSetter setState, String name,
                           builder: (context) =>
                               Report(clientId: clientId, firstName: firstname)),
                     );
+                  } else if (character == 'show_qr' && name == null) {
+                    _nullQRModal(context, setState, firstname);
                   } else {
                     _showQRModal(context, setState, name, firstname);
                   }
@@ -503,6 +505,43 @@ Future<bool> _showQRModal(
                       data: name,
                       size: 300,
                     ),
+                    FlatButton(
+                      onPressed: () {
+                        Navigator.of(context).pop(false);
+                      },
+                      child: Text('Cancel'),
+                    ),
+                  ],
+                ),
+                //  ),
+              );
+            },
+          ),
+        ],
+      ));
+}
+
+Future<bool> _nullQRModal(
+    BuildContext context, StateSetter setState, String firstname) {
+  return showDialog(
+      context: context,
+      child: AlertDialog(
+        title: Text('QR Code for $firstname does not exist.'),
+        //content: Text('You can always log back in...'),
+        //contentPadding: EdgeInsets.fromLTRB(10.0, 0.0, 0.0, 0.0),
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15.0),
+            side: BorderSide(color: Colors.white)),
+        actions: <Widget>[
+          StatefulBuilder(
+            builder: (context, setState) {
+              return SizedBox(
+                width: 400,
+                height: 100,
+                child: Column(
+                  children: <Widget>[
+                    Text('Sorry QR Code does not exist.'),
+                    SizedBox(height: 10.0),
                     FlatButton(
                       onPressed: () {
                         Navigator.of(context).pop(false);
