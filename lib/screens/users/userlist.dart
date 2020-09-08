@@ -75,7 +75,7 @@ class _UserListState extends State<UserList> {
     }
 
     Fluttertoast.showToast(
-        msg: "Login Successfull. $client_id",
+        msg: "Login Successfull.",
         toastLength: Toast.LENGTH_SHORT,
         gravity: ToastGravity.CENTER_LEFT,
         timeInSecForIosWeb: 1,

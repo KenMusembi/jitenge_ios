@@ -37,7 +37,7 @@ class _ReportState extends State<Report> {
   void initState() {
     int clientId = widget.clientId;
     int day;
-    String bodyTemp;
+    String bodyTemp = "0";
     String comment;
     _showDialog(difficultBreathing, fever, clientId, thermalGun, cough,
         bodyTemp, day, comment);
@@ -281,7 +281,18 @@ class _ReportState extends State<Report> {
                         _user == null
                             ? Container()
                             : Text(
-                                'You have successfully reported for $firstName. That is it for today.'),
+                                'You have successfully reported for $firstName. That is it for today.',
+                                style: TextStyle(
+                                  color: Colors.green[500],
+                                  //letterSpacing: 2.0,
+                                  fontSize: 16.0,
+                                  fontFamily: 'Calibri',
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                        SizedBox(
+                          height: 5.0,
+                        ),
                         Form(
                           key: _formkey,
                           child: Column(
@@ -520,6 +531,9 @@ Future<FollowUp> _showDialog(
     int day,
     String comment) async {
   final String apiUrl = 'http://ears-covid.mhealthkenya.co.ke/api/response';
+  if (bodyTemp == '' || bodyTemp == null) {
+    bodyTemp = '0';
+  }
   try {
     String token =
         "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjbGllbnQiOnsiaWQiOjEsInBob25lX251bWJlciI6IisyNTQ3MjM3ODMwMjEiLCJmaXJzdF9uYW1lIjoicGF0aWVudCIsImNyZWF0ZWRfYXQiOiIyMDIwLTAzLTAxIiwiY3JlYXRlZEF0IjoiMjAyMC0wMy0wMSIsInVwZGF0ZWRBdCI6IjIwMjAtMDMtMTQifSwiaWF0IjoxNTg0MTkxNjUzfQ.dEgJySZ33Mi4jE6lodOgbsTjKMuT7xfW-EkhHKtv-Oc";
