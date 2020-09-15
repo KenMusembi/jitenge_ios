@@ -2,14 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:country_code_picker/country_code_picker.dart';
 import 'package:international_phone_input/international_phone_input.dart';
 import 'dart:async';
+import 'driver-sign-up.dart';
 import 'sign-up.dart';
 
-class DriverSignUp extends StatefulWidget {
+class HomeSignUp extends StatefulWidget {
   @override
-  _DriverSignUpState createState() => _DriverSignUpState();
+  _HomeSignUpState createState() => _HomeSignUpState();
 }
 
-class _DriverSignUpState extends State<DriverSignUp> {
+class _HomeSignUpState extends State<HomeSignUp> {
   String dropdownValue = 'Male';
   String dropdownValue2 = 'English';
   DateTime selectedDate = DateTime.now();

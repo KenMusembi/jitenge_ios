@@ -325,7 +325,9 @@ class _UserListState extends State<UserList> {
                           // Whatever sort of things you want to build
                           // with your Post object at yourPosts[index]:
                           return ListTile(
-                              title: Text(yourPosts[index].firstName),
+                              title: Text(yourPosts[index].firstName +
+                                  '  ' +
+                                  yourPosts[index].lastName),
                               subtitle: Text(yourPosts[index].passportNumber),
                               onTap: () => _userModal(
                                   context,
