@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import 'resources.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:jitenge/screens/authenticate/sign-in.dart';
+import 'package:jitenge/screens/users/userlist.dart';
+
 //import 'dart:html' as html;
 
 class ResourcesDetail extends StatefulWidget {
@@ -51,12 +54,20 @@ class _ResourcesDetailState extends State<ResourcesDetail> {
     // Color bgColor = data['isDaytime'] ? Colors.blue : Colors.indigo;
 
     return Scaffold(
-      backgroundColor: Colors.white70,
+      backgroundColor: Colors.grey[200],
       appBar: AppBar(
         title: Text('Jitenge - Resources'),
         centerTitle: true,
         backgroundColor: Colors.blue,
         elevation: 3.0,
+        actions: <Widget>[
+          IconButton(
+              icon: Icon(
+                Icons.more_vert,
+                color: Colors.white,
+              ),
+              onPressed: () => _exitApp(context)),
+        ],
       ),
       body: SingleChildScrollView(
         child: Stack(alignment: Alignment.center, children: <Widget>[
@@ -85,7 +96,7 @@ class _ResourcesDetailState extends State<ResourcesDetail> {
                   elevation: 5,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
-                    mainAxisAlignment: MainAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: <Widget>[
                       Material(
                         elevation: 24.0,
@@ -171,13 +182,27 @@ class _ResourcesDetailState extends State<ResourcesDetail> {
                                   height: 20,
                                 ),
                                 RaisedButton(
-                                  onPressed: () {
-                                    //const url = 'https://google.com';
-                                    launch(url);
-                                  },
-                                  child: new Text(
-                                      'Download document from browser.'),
-                                ),
+                                    color: Colors.white,
+                                    elevation: 5,
+                                    onPressed: () {
+                                      //const url = 'https://google.com';
+                                      launch(url);
+                                    },
+                                    child: new Row(
+                                      children: [
+                                        Icon(
+                                          Icons.file_download,
+                                          color: Colors.blue,
+                                          size: 18.0,
+                                          semanticLabel:
+                                              'Text to announce in accessibility modes',
+                                        ),
+                                        Text(
+                                          ' Download document from browser.',
+                                          style: TextStyle(color: Colors.blue),
+                                        ),
+                                      ],
+                                    )),
                               ]),
                         ),
                       ),
@@ -196,6 +221,97 @@ class _ResourcesDetailState extends State<ResourcesDetail> {
         ]),
       ),
       // ),
+      bottomNavigationBar: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          FlatButton.icon(
+            padding: EdgeInsets.fromLTRB(0.0, 0.0, 20.0, 0.0),
+            //color: Colors.white,
+            //elevation: 2.0,
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            icon: Icon(Icons.home, color: Colors.blue[600]),
+            label: Text(
+              'Home',
+              style: TextStyle(
+                  color: Colors.blue[600],
+                  //letterSpacing: 2.0,
+                  fontSize: 14.0,
+                  fontWeight: FontWeight.bold),
+            ),
+          ),
+          FlatButton.icon(
+            padding: EdgeInsets.fromLTRB(0.0, 0.0, 20.0, 0.0),
+            //color: Colors.white,
+            //elevation: 2.0,
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            icon: Icon(Icons.assignment, color: Colors.blue[600]),
+            label: Text(
+              'Resources',
+              style: TextStyle(
+                  color: Colors.blue[400],
+                  //letterSpacing: 2.0,
+                  fontSize: 14.0,
+                  fontWeight: FontWeight.bold),
+            ),
+          ),
+          FlatButton.icon(
+            padding: EdgeInsets.fromLTRB(0.0, 0.0, 20.0, 0.0),
+            //color: Colors.white,
+            //elevation: 2.0,
+            onPressed: () {
+              _exitApp(context);
+            },
+            icon: Icon(Icons.exit_to_app, color: Colors.blue[600]),
+            label: Text(
+              'Logout',
+              style: TextStyle(
+                  color: Colors.blue[400],
+                  //letterSpacing: 2.0,
+                  fontSize: 14.0,
+                  fontWeight: FontWeight.bold),
+            ),
+          ),
+        ],
+      ),
     );
   }
+}
+
+Future<bool> _exitApp(BuildContext context) {
+  return showDialog(
+        context: context,
+        child: AlertDialog(
+          title: Text('Logout from Jitenge.'),
+          content: Text('Are you sure you want to log out?'),
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(15.0),
+              side: BorderSide(color: Colors.white)),
+          actions: <Widget>[
+            FlatButton(
+              onPressed: () {
+                Navigator.of(context).pop(false);
+              },
+              child: Text('No'),
+            ),
+            FlatButton(
+              onPressed: () {
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  //arguments: {},
+                  MaterialPageRoute(builder: (context) => SignIn()),
+                  (Route<dynamic> route) => false,
+                );
+                //SystemChannels.platform.invokeMethod('SystemNavigator.pop');
+              },
+              child: Text('Yes'),
+            ),
+          ],
+        ),
+      ) ??
+      false;
 }

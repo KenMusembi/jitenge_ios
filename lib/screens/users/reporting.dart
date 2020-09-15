@@ -10,6 +10,7 @@ import 'package:url_launcher/url_launcher.dart' as UrlLauncher;
 import 'package:http/http.dart' as http;
 import 'followUp.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'resources.dart';
 
 class Report extends StatefulWidget {
   final int clientId;
@@ -481,13 +482,13 @@ class _ReportState extends State<Report> {
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           FlatButton.icon(
-            padding: EdgeInsets.fromLTRB(0.0, 0.0, 50.0, 0.0),
+            padding: EdgeInsets.fromLTRB(0.0, 0.0, 20.0, 0.0),
             color: Colors.white,
             //elevation: 2.0,
             onPressed: () {
               Navigator.pop(context);
             },
-            icon: Icon(Icons.home, color: Colors.blue[400]),
+            icon: Icon(Icons.home, color: Colors.blue[600]),
             label: Text(
               'Home',
               style: TextStyle(
@@ -498,13 +499,34 @@ class _ReportState extends State<Report> {
             ),
           ),
           FlatButton.icon(
-            padding: EdgeInsets.fromLTRB(0.0, 0.0, 50.0, 0.0),
+            padding: EdgeInsets.fromLTRB(0.0, 0.0, 20.0, 0.0),
+            color: Colors.white,
+            //elevation: 2.0,
+            onPressed: () {
+              Navigator.push(
+                context,
+                //arguments: {},
+                MaterialPageRoute(builder: (context) => ChooseLocation()),
+              );
+            },
+            icon: Icon(Icons.assignment, color: Colors.blue[600]),
+            label: Text(
+              'Resources',
+              style: TextStyle(
+                  color: Colors.blue[400],
+                  //letterSpacing: 2.0,
+                  fontSize: 14.0,
+                  fontWeight: FontWeight.bold),
+            ),
+          ),
+          FlatButton.icon(
+            padding: EdgeInsets.fromLTRB(0.0, 0.0, 20.0, 0.0),
             color: Colors.white,
             //elevation: 2.0,
             onPressed: () {
               _exitApp(context);
             },
-            icon: Icon(Icons.exit_to_app, color: Colors.blue[400]),
+            icon: Icon(Icons.exit_to_app, color: Colors.blue[600]),
             label: Text(
               'Logout',
               style: TextStyle(

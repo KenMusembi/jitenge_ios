@@ -13,6 +13,7 @@ import 'package:http/http.dart' as http;
 import 'userdata.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'resources.dart';
 
 enum SingingCharacter { report_symptoms, show_qr }
 String character = 'report_symptoms';
@@ -96,7 +97,7 @@ class _UserListState extends State<UserList> {
         title: Text('Jitenge - Select User'),
         centerTitle: true,
         backgroundColor: Colors.blue,
-        elevation: 0.0,
+        elevation: 3.0,
         actions: <Widget>[
           IconButton(
               icon: Icon(
@@ -357,11 +358,11 @@ class _UserListState extends State<UserList> {
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           FlatButton.icon(
-            padding: EdgeInsets.fromLTRB(0.0, 0.0, 50.0, 0.0),
+            padding: EdgeInsets.fromLTRB(0.0, 0.0, 20.0, 0.0),
             color: Colors.white,
             //elevation: 2.0,
             onPressed: () {},
-            icon: Icon(Icons.home, color: Colors.blue[400]),
+            icon: Icon(Icons.home, color: Colors.blue[600]),
             label: Text(
               'Home',
               style: TextStyle(
@@ -372,13 +373,34 @@ class _UserListState extends State<UserList> {
             ),
           ),
           FlatButton.icon(
-            padding: EdgeInsets.fromLTRB(0.0, 0.0, 50.0, 0.0),
+            padding: EdgeInsets.fromLTRB(0.0, 0.0, 20.0, 0.0),
+            color: Colors.white,
+            //elevation: 2.0,
+            onPressed: () {
+              Navigator.push(
+                context,
+                //arguments: {},
+                MaterialPageRoute(builder: (context) => ChooseLocation()),
+              );
+            },
+            icon: Icon(Icons.assignment, color: Colors.blue[600]),
+            label: Text(
+              'Resources',
+              style: TextStyle(
+                  color: Colors.blue[400],
+                  //letterSpacing: 2.0,
+                  fontSize: 14.0,
+                  fontWeight: FontWeight.bold),
+            ),
+          ),
+          FlatButton.icon(
+            padding: EdgeInsets.fromLTRB(0.0, 0.0, 20.0, 0.0),
             color: Colors.white,
             //elevation: 2.0,
             onPressed: () {
               _exitApp(context);
             },
-            icon: Icon(Icons.exit_to_app, color: Colors.blue[400]),
+            icon: Icon(Icons.exit_to_app, color: Colors.blue[600]),
             label: Text(
               'Logout',
               style: TextStyle(
