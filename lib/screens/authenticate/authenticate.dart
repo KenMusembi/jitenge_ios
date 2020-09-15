@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:jitenge/screens/authenticate/sign-in.dart';
 import 'package:jitenge/screens/users/reporting.dart';
 import 'package:jitenge/screens/users/userlist.dart';
+import 'package:jitenge/screens/users/resources.dart';
 
 class Authenticate extends StatefulWidget {
   @override
@@ -11,6 +12,6 @@ class Authenticate extends StatefulWidget {
 class _AuthenticateState extends State<Authenticate> {
   @override
   Widget build(BuildContext context) {
-    return Container(child: SignIn());
+    return Container(child: ChooseLocation());
   }
 }
