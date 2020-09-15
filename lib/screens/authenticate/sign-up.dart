@@ -1,9 +1,20 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
-import 'package:country_code_picker/country_code_picker.dart';
-import 'package:international_phone_input/international_phone_input.dart';
+
+//
 import 'dart:async';
+import 'dart:io';
 
 import 'package:jitenge/screens/authenticate/sign-in.dart';
+import 'package:jitenge/screens/users/followUp.dart';
+import 'package:http/http.dart' as http;
+import 'package:fluttertoast/fluttertoast.dart';
+
+import 'package:country_pickers/country_pickers.dart';
+import 'package:country_pickers/country.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:international_phone_input/international_phone_input.dart' as d;
 
 class SignUp extends StatefulWidget {
   @override
@@ -11,19 +22,79 @@ class SignUp extends StatefulWidget {
 }
 
 class _SignUpState extends State<SignUp> {
+  Country _selectedDialogCountry =
+      CountryPickerUtils.getCountryByPhoneCode('254');
+
+  Country _selectedFilteredDialogCountry =
+      CountryPickerUtils.getCountryByPhoneCode('254');
+
+  Country _selectedCupertinoCountry =
+      CountryPickerUtils.getCountryByIsoCode('tr');
+
+  Country _selectedFilteredCupertinoCountry =
+      CountryPickerUtils.getCountryByIsoCode('KE');
+
+  final _formkey = GlobalKey<FormState>();
+
+  String thermalGun;
+  String fever;
+  String cough;
+  String difficultBreathing;
+  String feverish;
+  String chills;
+  String pcrTest;
+  FollowUp _user;
+
+  final TextEditingController firstNameController = TextEditingController();
+  final TextEditingController middleNameController = TextEditingController();
+  final TextEditingController lastNameController = TextEditingController();
+  final TextEditingController passportNumberController =
+      TextEditingController();
+  final TextEditingController residenceController = TextEditingController();
+  final TextEditingController airlineController = TextEditingController();
+  final TextEditingController flightNumberController = TextEditingController();
+  final TextEditingController seatNumberController = TextEditingController();
+  final TextEditingController destinationCityController =
+      TextEditingController();
+  final TextEditingController emailAddressController = TextEditingController();
+  final TextEditingController countriesVisitedController =
+      TextEditingController();
+  final TextEditingController contactPersonController = TextEditingController();
+  final TextEditingController contactTelephoneController =
+      TextEditingController();
+  final TextEditingController villageController = TextEditingController();
+  final TextEditingController sublocationController = TextEditingController();
+  final TextEditingController postalAdressController = TextEditingController();
+
   String dropdownValue = 'Male';
-  String dropdownValue2 = 'English';
+  String dropdownValue2 = 'Nairobi';
   DateTime selectedDate = DateTime.now();
+  DateTime selectedDate2 = DateTime.now();
+  String selectedcountry = 'Kenya';
 
   Future<Null> _selectDate(BuildContext context) async {
     final DateTime picked = await showDatePicker(
         context: context,
         initialDate: selectedDate,
-        firstDate: DateTime(2015, 8),
-        lastDate: DateTime(2101));
+        firstDate: DateTime(1920, 1),
+        lastDate: DateTime.now());
     if (picked != null && picked != selectedDate)
       setState(() {
         selectedDate = picked;
+        print(selectedDate);
+      });
+  }
+
+  Future<Null> _selectDate2(BuildContext context) async {
+    final DateTime picked2 = await showDatePicker(
+        context: context,
+        initialDate: selectedDate2,
+        firstDate: DateTime(2020, 9),
+        lastDate: DateTime(2021, 1));
+    if (picked2 != null && picked2 != selectedDate2)
+      setState(() {
+        selectedDate2 = picked2;
+        print(selectedDate2);
       });
   }
 
@@ -51,24 +122,159 @@ class _SignUpState extends State<SignUp> {
 
   @override
   Widget build(BuildContext context) {
+    _buildCountryPickerDropdownSoloExpanded() {
+      return CountryPickerDropdown(
+        underline: Container(
+          height: 1,
+          color: Colors.grey,
+        ),
+        //show'em (the text fields) you're in charge now
+        onTap: () => FocusScope.of(context).requestFocus(FocusNode()),
+        //if you want your dropdown button's selected item UI to be different
+        //than itemBuilder's(dropdown menu item UI), then provide this selectedItemBuilder.
+
+        itemHeight: null,
+        isExpanded: true,
+        initialValue: 'KE',
+        icon: Icon(Icons.arrow_downward),
+      );
+    }
+
+    Widget _buildDropdownItem(Country country, double dropdownItemWidth) =>
+        SizedBox(
+          width: dropdownItemWidth,
+          child: Row(
+            children: <Widget>[
+              CountryPickerUtils.getDefaultFlagImage(country),
+              SizedBox(
+                width: 8.0,
+              ),
+              Expanded(
+                  child: Text("+${country.phoneCode}(${country.isoCode})")),
+            ],
+          ),
+        );
+
+    Widget _buildDropdownItemWithLongText(
+            Country country, double dropdownItemWidth) =>
+        SizedBox(
+          width: dropdownItemWidth,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20.0, 0.0, 0.0, 0.0),
+            child: Row(
+              children: <Widget>[
+                CountryPickerUtils.getDefaultFlagImage(country),
+                SizedBox(
+                  width: 8.0,
+                ),
+                Expanded(child: Text("${country.name}")),
+              ],
+            ),
+          ),
+        );
+
+    Widget _buildDropdownSelectedItemBuilder(
+            Country country, double dropdownItemWidth) =>
+        SizedBox(
+            width: dropdownItemWidth,
+            child: Padding(
+                padding: const EdgeInsets.fromLTRB(20.0, 0.0, 0.0, 0.0),
+                child: Row(
+                  children: <Widget>[
+                    CountryPickerUtils.getDefaultFlagImage(country),
+                    SizedBox(
+                      width: 8.0,
+                    ),
+                    Expanded(
+                        child: Text(
+                      '${country.name}',
+                      style: TextStyle(
+                          color: Colors.black, fontWeight: FontWeight.bold),
+                    )),
+                  ],
+                )));
+
+    _buildCountryPickerDropdown(
+        {bool filtered = false,
+        bool sortedByIsoCode = false,
+        bool hasPriorityList = false,
+        bool hasSelectedItemBuilder = false}) {
+      double dropdownButtonWidth = MediaQuery.of(context).size.width * 0.5;
+      //respect dropdown button icon size
+      double dropdownItemWidth = dropdownButtonWidth - 30;
+      double dropdownSelectedItemWidth = dropdownButtonWidth - 30;
+      return Row(
+        children: <Widget>[
+          SizedBox(
+            // width: dropdownButtonWidth,
+            child: CountryPickerDropdown(
+              /* underline: Container(
+              height: 2,
+              color: Colors.red,
+            ),*/
+              //show'em (the text fields) you're in charge now
+              onTap: () => FocusScope.of(context).requestFocus(FocusNode()),
+              //if you have menu items of varying size, itemHeight being null respects
+              //that, IntrinsicHeight under the hood ;).
+              itemHeight: null,
+              //itemHeight being null and isDense being true doesn't play along
+              //well together. One is trying to limit size and other is saying
+              //limit is the sky, therefore conflicts.
+              //false is default but still keep that in mind.
+              isDense: false,
+              //if you want your dropdown button's selected item UI to be different
+              //than itemBuilder's(dropdown menu item UI), then provide this selectedItemBuilder.
+              selectedItemBuilder: hasSelectedItemBuilder == true
+                  ? (Country country) => _buildDropdownSelectedItemBuilder(
+                      country, dropdownSelectedItemWidth)
+                  : null,
+              //initialValue: 'AR',
+              itemBuilder: (Country country) => hasSelectedItemBuilder == true
+                  ? _buildDropdownItemWithLongText(country, dropdownItemWidth)
+                  : _buildDropdownItem(country, dropdownItemWidth),
+              initialValue: 'KE',
+              itemFilter: filtered
+                  ? (c) => ['AR', 'DE', 'GB', 'CN'].contains(c.isoCode)
+                  : null,
+              //priorityList is shown at the beginning of list
+              priorityList: hasPriorityList
+                  ? [
+                      CountryPickerUtils.getCountryByIsoCode('GB'),
+                      CountryPickerUtils.getCountryByIsoCode('CN'),
+                    ]
+                  : null,
+              sortComparator: sortedByIsoCode
+                  ? (Country a, Country b) => a.isoCode.compareTo(b.isoCode)
+                  : null,
+              onValuePicked: (Country country) {
+                print("${country.name}");
+                setState(() {
+                  selectedcountry = "${country.name}";
+                });
+              },
+            ),
+          ),
+        ],
+      );
+    }
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text('Jitenge - Sign Up'),
+        title: Text('Jitenge - Air Traveler Sign Up'),
         centerTitle: true,
         backgroundColor: Colors.blue,
         elevation: 0.0,
       ),
       body: SingleChildScrollView(
-        // padding: EdgeInsets.fromLTRB(30.0, 0.0, 10.0, 10.0),
         child: Padding(
           padding: const EdgeInsets.fromLTRB(20.0, 0.0, 20.0, 10.0),
           child: Column(
-            // crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               Center(
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(0.0, 10.0, 250.0, 0.0),
+                  padding: const EdgeInsets.fromLTRB(0.0, 5.0, 250.0, 0.0),
                   child: CircleAvatar(
                     backgroundImage: AssetImage('assets/jitenge.png'),
                     radius: 35.0,
@@ -76,7 +282,7 @@ class _SignUpState extends State<SignUp> {
                 ),
               ),
               Text(
-                'Sign Up',
+                'Air Traveler Sign Up',
                 style: TextStyle(
                   color: Colors.black,
                   //letterSpacing: 2.0,
@@ -86,272 +292,668 @@ class _SignUpState extends State<SignUp> {
                 ),
               ),
               Text(
-                'Create your account and get started on reporting.',
+                'Sign Up as an Air Traveler.',
                 style: TextStyle(
                   color: Colors.grey,
                   //letterSpacing: 2.0,
                   fontSize: 18.0,
                   fontFamily: 'Calibri',
-                  fontWeight: FontWeight.w300,
+                  fontWeight: FontWeight.w400,
                 ),
               ),
-              SizedBox(height: 30.0),
-              Text(
-                'What is your country of origin?',
-                style: TextStyle(
-                  color: Colors.black,
-                  //letterSpacing: 2.0,
-                  fontSize: 18.0,
-                  fontFamily: 'Calibri',
-                  //fontWeight: FontWeight.bold,
-                ),
-              ),
-              SizedBox(
-                //width: 600,
-                height: 40,
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(40.0, 0.0, 0.0, 0.0),
-                  child: CountryCodePicker(
-                    onChanged: print,
-                    hideMainText: false,
-                    showFlagMain: true,
-                    //: true,
-                    showFlag: true,
-                    initialSelection: 'KE',
-                    hideSearch: false,
-                    showCountryOnly: true,
-                    showOnlyCountryWhenClosed: true,
-                    alignLeft: true,
-                  ),
-                ),
-              ),
-              SizedBox(height: 10.0),
-              Text(
-                'What is your nationality?',
-                style: TextStyle(
-                  color: Colors.black,
-                  //letterSpacing: 2.0,
-                  fontSize: 18.0,
-                  fontFamily: 'Calibri',
-                  //fontWeight: FontWeight.bold,
-                ),
-              ),
-              SizedBox(
-                //width: 600,
-                height: 40,
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(40.0, 0.0, 0.0, 0.0),
-                  child: CountryCodePicker(
-                    onChanged: print,
-                    hideMainText: false,
-                    showFlagMain: true,
-                    //: true,
-                    showFlag: true,
-                    initialSelection: 'Ke',
-                    hideSearch: false,
-                    showCountryOnly: true,
-                    showOnlyCountryWhenClosed: true,
-                    alignLeft: true,
-                  ),
-                ),
-              ),
-              SizedBox(height: 5.0),
-              TextField(
-                decoration: InputDecoration(
-                    border: OutlineInputBorder(), hintText: 'Physical Address'),
-              ),
-              SizedBox(height: 5.0),
-              TextField(
-                decoration: InputDecoration(
-                    border: OutlineInputBorder(), hintText: 'First Name'),
-              ),
-              SizedBox(height: 5.0),
-              TextField(
-                decoration: InputDecoration(
-                    border: OutlineInputBorder(), hintText: 'Last Name'),
-              ),
-              SizedBox(height: 5.0),
-              TextField(
-                decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-                    hintText: 'ID/Passport Number'),
-              ),
-              SizedBox(height: 5.0),
-              TextField(
-                decoration: InputDecoration(
-                    border: OutlineInputBorder(), hintText: 'Email Address'),
-              ),
-              SizedBox(
-                height: 5.0,
-              ),
-              Row(
-                children: <Widget>[
-                  SizedBox(
-                    width: 20.0,
-                  ),
-                  Text('Gender',
-                      style: TextStyle(
-                        color: Colors.black,
-                        //letterSpacing: 2.0,
-                        fontSize: 18.0,
-                        fontFamily: 'Calibri',
-                        //fontWeight: FontWeight.bold,
-                      )),
-                  SizedBox(
-                    width: 120.0,
-                  ),
-                  DropdownButton<String>(
-                    value: dropdownValue,
-                    icon: Icon(Icons.arrow_drop_down),
-                    iconSize: 26,
-                    elevation: 16,
-                    style: TextStyle(color: Colors.black, fontSize: 16.0),
-                    underline: Container(
-                      height: 0,
-                      color: Colors.deepPurpleAccent,
+              SizedBox(height: 20.0),
+              Form(
+                key: _formkey,
+                child: Column(children: <Widget>[
+                  Text(
+                    'Biodata',
+                    style: TextStyle(
+                      color: Colors.black87,
+                      letterSpacing: 2.0,
+                      fontSize: 16.0,
+                      fontFamily: 'Calibri',
+                      fontWeight: FontWeight.w300,
                     ),
-                    onChanged: (String newValue) {
-                      setState(() {
-                        dropdownValue = newValue;
-                      });
-                    },
-                    items: <String>['Male', 'Female']
-                        .map<DropdownMenuItem<String>>((String value) {
-                      return DropdownMenuItem<String>(
-                        value: value,
-                        child: Text(value),
-                      );
-                    }).toList(),
                   ),
-                ],
-              ),
-              SizedBox(
-                height: 5.0,
-              ),
-              Row(
-                children: <Widget>[
-                  SizedBox(
-                    width: 20.0,
+                  SizedBox(height: 5.0),
+                  TextField(
+                    controller: firstNameController,
+                    decoration: InputDecoration(
+                        border: OutlineInputBorder(), hintText: 'First Name'),
                   ),
-                  Text('Date of Birth:',
-                      style: TextStyle(
-                        color: Colors.black,
-                        //letterSpacing: 2.0,
-                        fontSize: 18.0,
-                        fontFamily: 'Calibri',
-                        //fontWeight: FontWeight.bold,
-                      )),
-                  SizedBox(
-                    width: 40.0,
+                  SizedBox(height: 5.0),
+                  TextField(
+                    controller: middleNameController,
+                    decoration: InputDecoration(
+                        border: OutlineInputBorder(), hintText: 'Middle Name'),
                   ),
-                  FlatButton(
-                    onPressed: () => _selectDate(context),
-                    child: Text("${selectedDate.toLocal()}".split(' ')[0],
-                        style: TextStyle(
-                          color: Colors.black,
-                          //letterSpacing: 2.0,
-                          fontSize: 18.0,
-                          fontFamily: 'Calibri',
-                          //fontWeight: FontWeight.bold,
-                        )),
+                  SizedBox(height: 5.0),
+                  TextField(
+                    controller: lastNameController,
+                    decoration: InputDecoration(
+                        border: OutlineInputBorder(), hintText: 'Last Name'),
                   ),
-                ],
-              ),
-              SizedBox(height: 0.0),
-              InternationalPhoneInput(
-                decoration:
-                    InputDecoration.collapsed(hintText: '(07) 023 123-1234'),
-                onPhoneNumberChange: onPhoneNumberChange,
-                initialPhoneNumber: phoneNumber,
-                initialSelection: '+254',
-                enabledCountries: [],
-                showCountryCodes: true,
-                showCountryFlags: true,
-                //showCountryName: true,
-              ),
-              SizedBox(height: 0.0),
-              TextField(
-                decoration: InputDecoration(
-                    border: OutlineInputBorder(), hintText: 'Place of contact'),
-              ),
-              SizedBox(height: 5.0),
-              SizedBox(height: 5.0),
-              TextField(
-                decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-                    hintText: 'Any additional symptomatic conditions'),
-              ),
-              SizedBox(height: 5.0),
-              TextField(
-                decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-                    hintText: 'Are you using any drugs/prescriptions'),
-              ),
-              SizedBox(height: 5.0),
-              TextField(
-                decoration: InputDecoration(
-                    border: OutlineInputBorder(), hintText: 'Next of Kin'),
-              ),
-              SizedBox(height: 5.0),
-              TextField(
-                decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-                    hintText: 'Next of Kin Phone Number'),
-              ),
-              SizedBox(height: 5.0),
-              Row(
-                children: <Widget>[
-                  Text('Prefeered Language',
-                      style: TextStyle(
-                        color: Colors.black,
-                        //letterSpacing: 2.0,
-                        fontSize: 18.0,
-                        fontFamily: 'Calibri',
-                        //fontWeight: FontWeight.bold,
-                      )),
-                  SizedBox(
-                    width: 30.0,
+                  SizedBox(height: 5.0),
+                  TextField(
+                    controller: passportNumberController,
+                    decoration: InputDecoration(
+                        border: OutlineInputBorder(),
+                        hintText: 'ID/Passport Number'),
                   ),
-                  DropdownButton<String>(
-                    value: dropdownValue2,
-                    icon: Icon(Icons.arrow_drop_down),
-                    iconSize: 26,
-                    elevation: 16,
-                    style: TextStyle(color: Colors.black, fontSize: 16.0),
-                    underline: Container(
-                      height: 0,
-                      color: Colors.deepPurpleAccent,
+                  SizedBox(height: 5.0),
+                  Text(
+                    'What is your Country of Residence?',
+                    style: TextStyle(
+                      color: Colors.black,
+                      //letterSpacing: 2.0,
+                      fontSize: 18.0,
+                      fontFamily: 'Calibri',
+                      //fontWeight: FontWeight.bold,
                     ),
-                    onChanged: (String newValue) {
-                      setState(() {
-                        dropdownValue2 = newValue;
-                      });
-                    },
-                    items: <String>['English', 'Kiswahli', 'French']
-                        .map<DropdownMenuItem<String>>((String value) {
-                      return DropdownMenuItem<String>(
-                        value: value,
-                        child: Text(value),
-                      );
-                    }).toList(),
                   ),
-                ],
-              ),
-              SizedBox(height: 30.0),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
+                  Column(
+                    // crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      _buildCountryPickerDropdown(hasSelectedItemBuilder: true),
+                      //ListTile(title: _buildCountryPickerDropdown(longerText: true)),
+                    ],
+                  ),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: <Widget>[
+                      SizedBox(
+                        width: 20.0,
+                      ),
+                      Text('Date of Birth:',
+                          style: TextStyle(
+                            color: Colors.black,
+                            //letterSpacing: 2.0,
+                            fontSize: 18.0,
+                            fontFamily: 'Calibri',
+                            //fontWeight: FontWeight.bold,
+                          )),
+                      SizedBox(
+                        width: 20.0,
+                      ),
+                      FlatButton(
+                        onPressed: () => _selectDate(context),
+                        child: Text("${selectedDate.toLocal()}".split(' ')[0],
+                            style: TextStyle(
+                              color: Colors.black,
+                              //letterSpacing: 2.0,
+                              fontSize: 18.0,
+                              fontFamily: 'Calibri',
+                              //fontWeight: FontWeight.bold,
+                            )),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: <Widget>[
+                      SizedBox(
+                        width: 20.0,
+                      ),
+                      Text('Gender:',
+                          style: TextStyle(
+                            color: Colors.black,
+                            //letterSpacing: 2.0,
+                            fontSize: 18.0,
+                            fontFamily: 'Calibri',
+                            //fontWeight: FontWeight.bold,
+                          )),
+                      SizedBox(
+                        width: 100.0,
+                      ),
+                      DropdownButton<String>(
+                        value: dropdownValue,
+                        icon: Icon(Icons.arrow_drop_down),
+                        iconSize: 26,
+                        elevation: 16,
+                        style: TextStyle(color: Colors.black, fontSize: 18.0),
+                        underline: Container(
+                          height: 0,
+                          color: Colors.deepPurpleAccent,
+                        ),
+                        onChanged: (String newValue) {
+                          setState(() {
+                            dropdownValue = newValue;
+                          });
+                        },
+                        items: <String>['Male', 'Female']
+                            .map<DropdownMenuItem<String>>((String value) {
+                          return DropdownMenuItem<String>(
+                            value: value,
+                            child: Text(value),
+                          );
+                        }).toList(),
+                      ),
+                    ],
+                  ),
+                  SizedBox(
+                    height: 5.0,
+                  ),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: <Widget>[
+                      SizedBox(
+                        width: 20.0,
+                      ),
+                      Text('Date of Arrival:',
+                          style: TextStyle(
+                            color: Colors.black,
+                            //letterSpacing: 2.0,
+                            fontSize: 18.0,
+                            fontFamily: 'Calibri',
+                            //fontWeight: FontWeight.bold,
+                          )),
+                      SizedBox(
+                        width: 20.0,
+                      ),
+                      FlatButton(
+                        onPressed: () => _selectDate2(context),
+                        child: Text("${selectedDate2.toLocal()}".split(' ')[0],
+                            style: TextStyle(
+                              color: Colors.black,
+                              //letterSpacing: 2.0,
+                              fontSize: 18.0,
+                              fontFamily: 'Calibri',
+                              //fontWeight: FontWeight.bold,
+                            )),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 5.0),
+                  TextField(
+                    controller: airlineController,
+                    decoration: InputDecoration(
+                        border: OutlineInputBorder(), hintText: 'Airline'),
+                  ),
+                  SizedBox(height: 5.0),
+                  TextField(
+                    controller: flightNumberController,
+                    decoration: InputDecoration(
+                        border: OutlineInputBorder(),
+                        hintText: 'Flight Number(s)'),
+                  ),
+                  SizedBox(height: 5.0),
+                  TextField(
+                    controller: seatNumberController,
+                    decoration: InputDecoration(
+                        border: OutlineInputBorder(), hintText: 'Seat Number'),
+                  ),
+                  SizedBox(height: 5.0),
+                  TextField(
+                    controller: destinationCityController,
+                    decoration: InputDecoration(
+                        border: OutlineInputBorder(),
+                        hintText: 'Destination City'),
+                  ),
+                  SizedBox(height: 5.0),
+                  TextField(
+                    controller: emailAddressController,
+                    decoration: InputDecoration(
+                        border: OutlineInputBorder(),
+                        hintText: 'E-Mail Address'),
+                  ),
+                  SizedBox(height: 5.0),
+                  d.InternationalPhoneInput(
+                    decoration: new InputDecoration(
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(5.0)),
+                          borderSide:
+                              BorderSide(color: Colors.green, width: 1.0),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.grey),
+                        ),
+                        hintText: '72200000'),
+                    onPhoneNumberChange: onPhoneNumberChange,
+                    initialPhoneNumber: phoneNumber,
+                    initialSelection: '+254',
+                    enabledCountries: [],
+                    showCountryCodes: true,
+                    showCountryFlags: true,
+                    //showCountryName: true,
+                  ),
+                  SizedBox(height: 15.0),
+                  Text(
+                    'Travel History',
+                    style: TextStyle(
+                      color: Colors.black87,
+                      letterSpacing: 2.0,
+                      fontSize: 16.0,
+                      fontFamily: 'Calibri',
+                      fontWeight: FontWeight.w300,
+                    ),
+                  ),
+                  SizedBox(height: 5.0),
+                  Text(
+                    'Which countries have you been in the past two weeks?',
+                    style: TextStyle(
+                      color: Colors.black,
+                      //letterSpacing: 2.0,
+                      fontSize: 16.0,
+                      fontFamily: 'Calibri',
+                      //fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: 5.0),
+                  TextField(
+                    controller: countriesVisitedController,
+                    decoration: InputDecoration(
+                        border: OutlineInputBorder(),
+                        hintText: 'Enter Countries Visited'),
+                  ),
+                  SizedBox(height: 15.0),
+                  Text(
+                    'Medical History',
+                    style: TextStyle(
+                      color: Colors.black87,
+                      letterSpacing: 2.0,
+                      fontSize: 16.0,
+                      fontFamily: 'Calibri',
+                      fontWeight: FontWeight.w300,
+                    ),
+                  ),
+                  SizedBox(height: 5.0),
+                  Text(
+                    'Today or in the past 24hours, have you had any of the following symptoms?',
+                    style: TextStyle(
+                      color: Colors.black,
+                      //letterSpacing: 2.0,
+                      fontSize: 16.0,
+                      fontFamily: 'Calibri',
+                      //fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: 5.0),
+                  Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: <Widget>[
+                        Text('Fever (37.5°C oe higher)'),
+                        Row(
+                          children: <Widget>[
+                            Expanded(
+                              flex: 1,
+                              child: RadioListTile(
+                                value: 'true',
+                                groupValue: fever,
+                                title: Text("YES"),
+                                onChanged: (newValue) =>
+                                    setState(() => fever = newValue),
+                                //activeColor: Colors.red,
+                                //selected: false,
+                              ),
+                            ),
+                            Expanded(
+                              flex: 1,
+                              child: RadioListTile(
+                                value: 'false',
+                                groupValue: fever,
+                                title: Text("NO"),
+                                onChanged: (newValue) =>
+                                    setState(() => fever = newValue),
+                                //activeColor: Colors.red,
+                                //selected: true,
+                              ),
+                            ),
+                          ],
+                        ),
+                        Text('Felt Feverish?'),
+                        Row(
+                          children: <Widget>[
+                            Expanded(
+                              flex: 1,
+                              child: RadioListTile(
+                                value: 'true',
+                                groupValue: feverish,
+                                title: Text("YES"),
+                                onChanged: (newValue) =>
+                                    setState(() => feverish = newValue),
+                                //activeColor: Colors.red,
+                                //selected: false,
+                              ),
+                            ),
+                            Expanded(
+                              flex: 1,
+                              child: RadioListTile(
+                                value: 'false',
+                                groupValue: feverish,
+                                title: Text("NO"),
+                                onChanged: (newValue) =>
+                                    setState(() => feverish = newValue),
+                                //activeColor: Colors.red,
+                                //selected: true,
+                              ),
+                            ),
+                          ],
+                        ),
+                        Text('Had Chills?'),
+                        Row(
+                          children: <Widget>[
+                            Expanded(
+                              flex: 1,
+                              child: RadioListTile(
+                                value: 'true',
+                                groupValue: chills,
+                                title: Text("YES"),
+                                onChanged: (newValue) =>
+                                    setState(() => chills = newValue),
+                                //activeColor: Colors.red,
+                                //selected: false,
+                              ),
+                            ),
+                            Expanded(
+                              flex: 1,
+                              child: RadioListTile(
+                                value: 'false',
+                                groupValue: chills,
+                                title: Text("NO"),
+                                onChanged: (newValue) =>
+                                    setState(() => chills = newValue),
+                                //activeColor: Colors.red,
+                                //selected: true,
+                              ),
+                            ),
+                          ],
+                        ),
+                        Text('Have you developed a cough?'),
+                        Row(
+                          children: <Widget>[
+                            Expanded(
+                              flex: 1,
+                              child: RadioListTile(
+                                value: 'true',
+                                groupValue: cough,
+                                title: Text("YES"),
+                                onChanged: (newValue) =>
+                                    setState(() => cough = newValue),
+                                //activeColor: Colors.red,
+                                //selected: false,
+                              ),
+                            ),
+                            Expanded(
+                              flex: 1,
+                              child: RadioListTile(
+                                value: 'false',
+                                groupValue: cough,
+                                title: Text("NO"),
+                                onChanged: (newValue) =>
+                                    setState(() => cough = newValue),
+                                //activeColor: Colors.red,
+                                //selected: true,
+                              ),
+                            ),
+                          ],
+                        ),
+                        Text('Do you have difficulty in breathing?'),
+                        Row(
+                          children: <Widget>[
+                            Expanded(
+                              flex: 1,
+                              child: RadioListTile(
+                                value: 'true',
+                                groupValue: difficultBreathing,
+                                title: Text("YES"),
+                                onChanged: (newValue) => setState(
+                                    () => difficultBreathing = newValue),
+                                //activeColor: Colors.red,
+                                //selected: false,
+                              ),
+                            ),
+                            Expanded(
+                              flex: 1,
+                              child: RadioListTile(
+                                value: 'false',
+                                groupValue: difficultBreathing,
+                                title: Text("NO"),
+                                onChanged: (newValue) => setState(
+                                    () => difficultBreathing = newValue),
+                                //activeColor: Colors.red,
+                                //selected: true,
+                              ),
+                            ),
+                          ],
+                        ),
+                        Text('Do you have a Negative PCR test?'),
+                        Row(
+                          children: <Widget>[
+                            Expanded(
+                              flex: 1,
+                              child: RadioListTile(
+                                value: 'true',
+                                groupValue: pcrTest,
+                                title: Text("YES"),
+                                onChanged: (newValue) =>
+                                    setState(() => pcrTest = newValue),
+                                //activeColor: Colors.red,
+                                //selected: false,
+                              ),
+                            ),
+                            Expanded(
+                              flex: 1,
+                              child: RadioListTile(
+                                value: 'false',
+                                groupValue: pcrTest,
+                                title: Text("NO"),
+                                onChanged: (newValue) =>
+                                    setState(() => pcrTest = newValue),
+                                //activeColor: Colors.red,
+                                //selected: true,
+                              ),
+                            ),
+                          ],
+                        ),
+                        //SizedBox(height: 10.0),
+                      ]),
+                  SizedBox(height: 10.0),
+                  Text(
+                    'Contact Information',
+                    style: TextStyle(
+                      color: Colors.black87,
+                      letterSpacing: 2.0,
+                      fontSize: 16.0,
+                      fontFamily: 'Calibri',
+                      fontWeight: FontWeight.w300,
+                    ),
+                  ),
+                  SizedBox(height: 5.0),
+                  TextField(
+                    controller: contactPersonController,
+                    decoration: InputDecoration(
+                        border: OutlineInputBorder(),
+                        hintText: 'Name of contact person'),
+                  ),
+                  SizedBox(height: 5.0),
+                  SizedBox(height: 5.0),
+                  TextField(
+                    controller: contactTelephoneController,
+                    decoration: InputDecoration(
+                        border: OutlineInputBorder(),
+                        hintText: 'Contact person telephone'),
+                  ),
+                  SizedBox(height: 5.0),
+                  TextField(
+                    controller: villageController,
+                    decoration: InputDecoration(
+                        border: OutlineInputBorder(),
+                        hintText: 'Village/House Number/Hotel'),
+                  ),
+                  SizedBox(height: 5.0),
+                  TextField(
+                    controller: sublocationController,
+                    decoration: InputDecoration(
+                        border: OutlineInputBorder(),
+                        hintText: 'Sublocation/Estate'),
+                  ),
+                  SizedBox(height: 5.0),
+                  TextField(
+                    controller: postalAdressController,
+                    decoration: InputDecoration(
+                        border: OutlineInputBorder(),
+                        hintText: 'Postal Address'),
+                  ),
+                  SizedBox(height: 5.0),
+                  Row(
+                    children: <Widget>[
+                      Text('County',
+                          style: TextStyle(
+                            color: Colors.black,
+                            //letterSpacing: 2.0,
+                            fontSize: 18.0,
+                            fontFamily: 'Calibri',
+                            //fontWeight: FontWeight.bold,
+                          )),
+                      SizedBox(
+                        width: 30.0,
+                      ),
+                      DropdownButton<String>(
+                        value: dropdownValue2,
+                        icon: Icon(Icons.arrow_drop_down),
+                        iconSize: 26,
+                        elevation: 16,
+                        style: TextStyle(color: Colors.black, fontSize: 16.0),
+                        underline: Container(
+                          height: 0,
+                          color: Colors.deepPurpleAccent,
+                        ),
+                        onChanged: (String newValue) {
+                          setState(() {
+                            dropdownValue2 = newValue;
+                          });
+                        },
+                        items: <String>[
+                          'Nairobi',
+                          'Kirinyaga',
+                          'Bungoma',
+                          'Nyamira',
+                          'Lamu',
+                          'Wajir',
+                          'Nandi',
+                          'Embu',
+                          'Isiolo',
+                          'Taita Taveta',
+                          'Nakuru',
+                          'Migori',
+                          'Narok',
+                          'Marsabit',
+                          'Kilifi',
+                          'Kitui',
+                          'Mombasa',
+                          'Kisumu',
+                          'Kakamega',
+                          'Machakos',
+                          'Mandera',
+                          'Meru',
+                          'Garissa',
+                          'Kisii',
+                          'Siaya',
+                          'Muranga',
+                          'Laikipia',
+                          'Kajiado',
+                          'Kwale',
+                          'Baringo',
+                          'Nyeri',
+                          'Trans Nzioia',
+                          'Vihiga',
+                          'Samburu',
+                          'Tana Rover',
+                          'Elgeyo-Marakwet',
+                          'West Pokot',
+                          'Makueni',
+                          'Kiambu',
+                          'Tharaka Nithi',
+                          'Turkana',
+                          'Busia',
+                          'Bomet',
+                          'Homa Bay',
+                          'Kericho',
+                          'Nyandarua',
+                          'Uasin Gishu'
+                        ].map<DropdownMenuItem<String>>((String value) {
+                          return DropdownMenuItem<String>(
+                            value: value,
+                            child: Text(value),
+                          );
+                        }).toList(),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 30.0),
                   FloatingActionButton.extended(
-                    //padding: EdgeInsets.fromLTRB(100.0, 5.0, 100.0, 5.0),
-                    //color: Colors.blue[800],
-                    // elevation: 2.0,
-                    onPressed: () {
-                      notYet(context);
+                    label: Text('Submit'),
+                    onPressed: () async {
+                      final String firstName = firstNameController.text;
+                      final middleName = middleNameController.text;
+                      final lastName = lastNameController.text;
+                      final passportNumber = passportNumberController.text;
+                      final String sex = dropdownValue;
+                      final String county = dropdownValue2;
+                      final String phone_number = phoneNumber;
+                      final String dob = selectedDate.toString();
+                      final String arrival_date = selectedDate2.toString();
+                      final String selecetdcountry = selectedcountry;
+                      final airline = airlineController.text;
+                      final flightNumber = flightNumberController.text;
+                      final seatNumber = seatNumberController.text;
+                      final destinationCity = destinationCityController.text;
+                      final email = emailAddressController.text;
+                      final countriesVisited = countriesVisitedController.text;
+                      final contactPerson = contactPersonController.text;
+                      final contactPhone = contactTelephoneController.text;
+                      final village = villageController.text;
+                      final postalAddress = postalAdressController.text;
+                      final sublocation = sublocationController.text;
+                      final FollowUp followup = await _showDialog(
+                          difficultBreathing,
+                          fever,
+                          //thermalGun,
+                          cough,
+                          chills,
+                          firstName,
+                          middleName,
+                          lastName,
+                          passportNumber,
+                          sex,
+                          county,
+                          phone_number,
+                          dob,
+                          arrival_date,
+                          selecetdcountry,
+                          airline,
+                          flightNumber,
+                          seatNumber,
+                          destinationCity,
+                          email,
+                          countriesVisited,
+                          contactPerson,
+                          contactPhone,
+                          village,
+                          postalAddress,
+                          sublocation);
+                      setState(() {
+                        _user = followup;
+                        if (_user.success == true) {
+                          Fluttertoast.showToast(
+                              msg:
+                                  "Sorry, App currently not available for HealthCare workers.",
+                              toastLength: Toast.LENGTH_SHORT,
+                              gravity: ToastGravity.CENTER_RIGHT,
+                              timeInSecForIosWeb: 1,
+                              backgroundColor: Colors.red,
+                              textColor: Colors.white,
+                              fontSize: 16.0);
+                        }
+                      });
                     },
-                    label: Text('SignUp'),
+                    tooltip: "Submit Follow Up Data",
+                    //icon: Icon(Icons.add)
                   ),
-                ],
+                ]),
               ),
               SizedBox(height: 10.0),
               Row(
@@ -394,6 +996,156 @@ class _SignUpState extends State<SignUp> {
       ),
     );
   }
+}
+
+// ignore: missing_return
+Future<FollowUp> _showDialog(
+    String difficultBreathing,
+    String fever,
+    // thermalGun,
+    String cough,
+    String chills,
+    String firstName,
+    String middleName,
+    String lastName,
+    String passportNumber,
+    String sex,
+    String county,
+    String phone_number,
+    String dob,
+    String arrival_date,
+    String selectedcountry,
+    String airline,
+    String flightNumber,
+    String seatNumber,
+    String destinationCity,
+    String email,
+    String countriesVisited,
+    String contactPerson,
+    String contactPhone,
+    String village,
+    String postalAddress,
+    String sublocation) async {
+  final String apiUrl =
+      'http://ears-api.mhealthkenya.co.ke/api/register/airline/contacts';
+  if (county == '' || county == null) {
+    county = 'Nairobi';
+  }
+
+  // String token =
+  //   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjbGllbnQiOnsiaWQiOjEsInBob25lX251bWJlciI6IisyNTQ3MjM3ODMwMjEiLCJmaXJzdF9uYW1lIjoicGF0aWVudCIsImNyZWF0ZWRfYXQiOiIyMDIwLTAzLTAxIiwiY3JlYXRlZEF0IjoiMjAyMC0wMy0wMSIsInVwZGF0ZWRBdCI6IjIwMjAtMDMtMTQifSwiaWF0IjoxNTg0MTkxNjUzfQ.dEgJySZ33Mi4jE6lodOgbsTjKMuT7xfW-EkhHKtv-Oc";
+  Map<String, dynamic> req = {
+    "first_name": "Kennedy",
+    "middle_name": "test",
+    "last_name": "Musembi",
+    "sex": "MALE",
+    "dob": "1980-01-06",
+    "passport_number": "985007",
+    "phone_number": "254748050434",
+    "email_address": "test@yahoo.com",
+    "place_of_diagnosis": "KENYA",
+    "date_of_contact": "2020-01-12",
+    "nationality": "KENYA",
+    "county_id": json.encode(139),
+    "subcounty_id": json.encode(111),
+    "ward_id": json.encode(73339),
+    "cormobidity": "no",
+    "drugs": "no",
+    "nok": "milan",
+    "nok_phone_num": "0705255873",
+    "communication_language_id": json.encode(1),
+    "ObjProp": {
+      "airline": "Ethiopian Airline",
+      "flight_number": "TEST",
+      "seat_number": "maclaren",
+      "destination_city": "Opiyo Motors",
+      "travel_history": "KENYA, Uganda, Tanzania",
+      "cough": cough,
+      "breathing_difficulty": difficultBreathing,
+      "fever": fever,
+      "chills": chills,
+      "temperature": fever,
+      "residence": "nanyuki",
+      "estate": "nyk ranch",
+      "postal_address": "123 nyk"
+    }
+  };
+  String jsonRequest = json.encode(req);
+  final response = await http
+      .post(apiUrl,
+          headers: {
+            //'Content-type': 'application/json',
+            'Accept': '*/*',
+            //'Authorization': 'Bearer $token'
+          },
+          body: jsonRequest)
+      .timeout(
+    Duration(seconds: 3),
+    onTimeout: () {
+      // time has run out, do what you wanted to do
+      return null;
+    },
+  );
+  //FollowUp followUp;
+  try {
+    if (response.statusCode == 200) {
+      final String responseString = response.body;
+      print(responseString);
+
+      if (responseString.contains("true")) {
+        Fluttertoast.showToast(
+            msg:
+                "Successfully Registered as an Air Traveller. \n Log in to check your QR Code.",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.CENTER_RIGHT,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.green,
+            textColor: Colors.white,
+            fontSize: 16.0);
+      } else if (responseString.contains('exists') ||
+          responseString.contains('zilikamilika')) {
+        Fluttertoast.showToast(
+            msg: "Client with details already exists",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.CENTER_RIGHT,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+            fontSize: 16.0);
+      } else if (responseString.contains('already recorded')) {
+        Fluttertoast.showToast(
+            msg:
+                "Your response for day 7 was already recorded more than once and your next submission is expected tomorrow. For any further information kindly call EOC.",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.CENTER_RIGHT,
+            timeInSecForIosWeb: 3,
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+            fontSize: 16.0);
+      } else {
+        Fluttertoast.showToast(
+            msg: "Registration not succesful, Kindly Try again.",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.CENTER_RIGHT,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+            fontSize: 16.0);
+      }
+
+      return followUpFromJson(responseString);
+    } else {
+      Fluttertoast.showToast(
+          msg: "Error! Could not submit Report, Kindly try again.",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER_RIGHT,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0);
+      return null;
+    }
+  } catch (error) {}
 }
 
 notYet(BuildContext context) {

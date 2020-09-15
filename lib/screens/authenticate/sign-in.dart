@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:international_phone_input/international_phone_input.dart';
+import 'package:jitenge/screens/authenticate/driver-sign-up.dart';
+import 'package:jitenge/screens/authenticate/home-sign-up.dart';
 import 'package:jitenge/screens/authenticate/login.dart';
 import 'package:jitenge/screens/users/userlist.dart';
 import 'sign-up.dart';
@@ -7,6 +9,9 @@ import 'sign-up.dart';
 import 'package:http/http.dart' as http;
 import 'dart:io';
 import 'package:fluttertoast/fluttertoast.dart';
+
+enum SingingCharacter { home_isolation, truck_driver, air_traveler }
+String character = 'air_traveler';
 
 class SignIn extends StatefulWidget {
   @override
@@ -253,10 +258,7 @@ class _SignInState extends State<SignIn> {
                   color: Colors.white,
                   //elevation: 2.0,
                   onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => SignUp()),
-                    );
+                    _registerModal(context, setState);
                   },
                   child: const Text(
                     'Sign Up',
@@ -324,4 +326,108 @@ Future<Login> _showDialog(String phone_no, String passport_no) async {
         textColor: Colors.white,
         fontSize: 16.0);
   }
+}
+
+Future<bool> _registerModal(BuildContext context, StateSetter setState) {
+  return showDialog(
+      context: context,
+      child: AlertDialog(
+        title: Text('Please Select an option below:'),
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15.0),
+            side: BorderSide(color: Colors.white)),
+        actions: <Widget>[
+          StatefulBuilder(
+            builder: (context, setState) {
+              return SizedBox(
+                width: 340,
+                height: 180,
+                child: Column(
+                  children: [
+                    RadioListTile<String>(
+                      activeColor: Colors.red,
+                      title: const Text('Home isolation'),
+                      value: 'home_isolation',
+                      groupValue: character,
+                      onChanged: (value) {
+                        setState(() {
+                          character = value;
+                          print(character);
+                        });
+                      },
+                    ),
+                    RadioListTile<String>(
+                      title: const Text('Truck Driver'),
+                      activeColor: Colors.red,
+                      value: 'truck_driver',
+                      groupValue: character,
+                      onChanged: (String value) {
+                        setState(() {
+                          character = value;
+                          print(character);
+                        });
+                      },
+                    ),
+                    RadioListTile<String>(
+                      title: const Text('Air Traveler'),
+                      activeColor: Colors.red,
+                      value: 'air_traveler',
+                      groupValue: character,
+                      onChanged: (String value) {
+                        setState(() {
+                          character = value;
+                          print(character);
+                        });
+                      },
+                    ),
+                  ],
+                ),
+                //  ),
+              );
+            },
+          ),
+          SizedBox(
+            height: 10.0,
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              SizedBox(width: 70),
+              FlatButton(
+                onPressed: () {
+                  Navigator.of(context).pop(false);
+                },
+                child: Text('Cancel'),
+              ),
+              SizedBox(width: 30),
+              FlatButton(
+                onPressed: () {
+                  print(character);
+                  if (character == 'home_isolation') {
+                    Navigator.push(
+                      context,
+                      //arguments: {},
+                      MaterialPageRoute(builder: (context) => HomeSignUp()),
+                    );
+                  } else if (character == 'truck_driver') {
+                    Navigator.push(
+                      context,
+                      //arguments: {},
+                      MaterialPageRoute(builder: (context) => DriverSignUp()),
+                    );
+                  } else if (character == 'air_traveler') {
+                    Navigator.push(
+                      context,
+                      //arguments: {},
+                      MaterialPageRoute(builder: (context) => SignUp()),
+                    );
+                  }
+                },
+                child: Text('Continue'),
+              ),
+            ],
+          ),
+        ],
+      ));
 }
