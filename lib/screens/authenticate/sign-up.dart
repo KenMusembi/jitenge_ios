@@ -1040,7 +1040,7 @@ Future<FollowUp> _showDialog(
     "last_name": "Musembi",
     "sex": "MALE",
     "dob": "1980-01-06",
-    "passport_number": "985007",
+    "passport_number": "909090",
     "phone_number": "254748050434",
     "email_address": "test@yahoo.com",
     "place_of_diagnosis": "KENYA",
@@ -1070,17 +1070,51 @@ Future<FollowUp> _showDialog(
       "postal_address": "123 nyk"
     }
   };
+  // ignore: non_constant_identifier_names
+  Map<String, dynamic> ObjProps = {};
+
   String jsonRequest = json.encode(req);
-  final response = await http
-      .post(apiUrl,
-          headers: {
-            //'Content-type': 'application/json',
-            'Accept': '*/*',
-            //'Authorization': 'Bearer $token'
-          },
-          body: jsonRequest)
-      .timeout(
-    Duration(seconds: 3),
+  final response = await http.post(apiUrl, headers: {
+    //'Content-type': 'application/json',
+    'Accept': '*/*',
+    //'Authorization': 'Bearer $token'
+  }, body: {
+    "first_name": "Kennedy",
+    "middle_name": "test",
+    "last_name": "Musembi",
+    "sex": "MALE",
+    "dob": "1980-01-06",
+    "passport_number": "909090",
+    "phone_number": "254748050434",
+    "email_address": "test@yahoo.com",
+    "place_of_diagnosis": "KENYA",
+    "date_of_contact": "2020-01-12",
+    "nationality": "KENYA",
+    "county_id": json.encode(139),
+    "subcounty_id": json.encode(111),
+    "ward_id": json.encode(73339),
+    "cormobidity": "no",
+    "drugs": "no",
+    "nok": "milan",
+    "nok_phone_num": "0705255873",
+    "communication_language_id": json.encode(1),
+    "ObjProp": {
+      "airline": "Ethiopian Airline",
+      "flight_number": "TEST",
+      "seat_number": "maclaren",
+      "destination_city": "Opiyo Motors",
+      "travel_history": "KENYA, Uganda, Tanzania",
+      "cough": "cough",
+      "breathing_difficulty": "difficultBreathing",
+      "fever": "fever",
+      "chills": "chills",
+      "temperature": "fever",
+      "residence": "nanyuki",
+      "estate": "nyk ranch",
+      "postal_address": "123 nyk"
+    }
+  }).timeout(
+    Duration(seconds: 9),
     onTimeout: () {
       // time has run out, do what you wanted to do
       return null;

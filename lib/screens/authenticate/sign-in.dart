@@ -258,7 +258,8 @@ class _SignInState extends State<SignIn> {
                   color: Colors.white,
                   //elevation: 2.0,
                   onPressed: () {
-                    _registerModal(context, setState);
+                    // _registerModal(context, setState);
+                    notYet(context);
                   },
                   child: const Text(
                     'Sign Up',
@@ -427,6 +428,35 @@ Future<bool> _registerModal(BuildContext context, StateSetter setState) {
                 child: Text('Continue'),
               ),
             ],
+          ),
+        ],
+      ));
+}
+
+notYet(BuildContext context) {
+  return showDialog(
+      context: context,
+      child: AlertDialog(
+        title: Text('Service not available.'),
+        //content: Text('You can always log back in...'),
+        //contentPadding: EdgeInsets.fromLTRB(10.0, 0.0, 0.0, 0.0),
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15.0),
+            side: BorderSide(color: Colors.white)),
+        actions: <Widget>[
+          StatefulBuilder(
+            builder: (context, setState) {
+              return SizedBox(
+                width: 400,
+                height: 60,
+                child: Column(
+                  children: <Widget>[
+                    Text('We will notify you once this feature is ready.'),
+                  ],
+                ),
+                //  ),
+              );
+            },
           ),
         ],
       ));
