@@ -3,7 +3,8 @@ import 'package:international_phone_input/international_phone_input.dart';
 import 'package:jitenge/screens/authenticate/driver-sign-up.dart';
 import 'package:jitenge/screens/authenticate/home-sign-up.dart';
 import 'package:jitenge/screens/authenticate/login.dart';
-import 'package:jitenge/screens/users/userlist.dart';
+import 'package:jitenge/screens/users/HCWhome.dart';
+import 'package:jitenge/screens/users/userlist.dart' as dd;
 import 'sign-up.dart';
 
 import 'package:http/http.dart' as http;
@@ -179,23 +180,24 @@ class _SignInState extends State<SignIn> {
                             _user = user;
                             // String message = _user.message;
                             if (_user.isHcw == 1) {
-                              Fluttertoast.showToast(
-                                  msg:
-                                      "Sorry, App currently not available for HealthCare workers.",
-                                  toastLength: Toast.LENGTH_SHORT,
-                                  gravity: ToastGravity.CENTER_RIGHT,
-                                  timeInSecForIosWeb: 1,
-                                  backgroundColor: Colors.red,
-                                  textColor: Colors.white,
-                                  fontSize: 16.0);
-                            } else if (_user.isHcw == 0 &&
-                                _user.success == true &&
-                                _user.clientId != '') {
                               Navigator.pushAndRemoveUntil(
                                 context,
                                 //arguments: {},
                                 MaterialPageRoute(
-                                    builder: (context) => UserList(
+                                    builder: (context) => HCWhome(
+                                        language: _user.language,
+                                        phone_no: phone_no,
+                                        client_id: _user.clientId)),
+                                (Route<dynamic> route) => false,
+                              );
+                            } else if (_user.isHcw == 0 &&
+                                _user.success == true &&
+                                _user.clientId != null) {
+                              Navigator.pushAndRemoveUntil(
+                                context,
+                                //arguments: {},
+                                MaterialPageRoute(
+                                    builder: (context) => dd.UserList(
                                         language: _user.language,
                                         phone_no: phone_no,
                                         client_id: _user.clientId)),
@@ -258,8 +260,8 @@ class _SignInState extends State<SignIn> {
                   color: Colors.white,
                   //elevation: 2.0,
                   onPressed: () {
-                    // _registerModal(context, setState);
-                    notYet(context);
+                    _registerModal(context, setState);
+                    //notYet(context);
                   },
                   child: const Text(
                     'Sign Up',

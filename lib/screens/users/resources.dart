@@ -127,7 +127,8 @@ class _ChooseLocationState extends State<ChooseLocation> {
                       // Text(resources[index].heading)
                     ],
                   ),
-                ));
+                )
+                );
           }),
       bottomNavigationBar: Row(
         crossAxisAlignment: CrossAxisAlignment.center,

@@ -7,6 +7,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:jitenge/screens/authenticate/sign-in.dart';
+import 'package:jitenge/screens/users/airclass.dart';
 import 'package:jitenge/screens/users/followUp.dart';
 import 'package:http/http.dart' as http;
 import 'package:fluttertoast/fluttertoast.dart';
@@ -36,13 +37,13 @@ class _SignUpState extends State<SignUp> {
 
   final _formkey = GlobalKey<FormState>();
 
-  String thermalGun;
-  String fever;
-  String cough;
-  String difficultBreathing;
-  String feverish;
-  String chills;
-  String pcrTest;
+  bool thermalGun;
+  bool fever;
+  bool cough;
+  bool difficultBreathing;
+  bool feverish;
+  bool chills;
+  bool pcrTest;
   FollowUp _user;
 
   final TextEditingController firstNameController = TextEditingController();
@@ -580,7 +581,7 @@ class _SignUpState extends State<SignUp> {
                             Expanded(
                               flex: 1,
                               child: RadioListTile(
-                                value: 'true',
+                                value: true,
                                 groupValue: fever,
                                 title: Text("YES"),
                                 onChanged: (newValue) =>
@@ -592,7 +593,7 @@ class _SignUpState extends State<SignUp> {
                             Expanded(
                               flex: 1,
                               child: RadioListTile(
-                                value: 'false',
+                                value: false,
                                 groupValue: fever,
                                 title: Text("NO"),
                                 onChanged: (newValue) =>
@@ -609,7 +610,7 @@ class _SignUpState extends State<SignUp> {
                             Expanded(
                               flex: 1,
                               child: RadioListTile(
-                                value: 'true',
+                                value: true,
                                 groupValue: feverish,
                                 title: Text("YES"),
                                 onChanged: (newValue) =>
@@ -621,7 +622,7 @@ class _SignUpState extends State<SignUp> {
                             Expanded(
                               flex: 1,
                               child: RadioListTile(
-                                value: 'false',
+                                value: false,
                                 groupValue: feverish,
                                 title: Text("NO"),
                                 onChanged: (newValue) =>
@@ -638,7 +639,7 @@ class _SignUpState extends State<SignUp> {
                             Expanded(
                               flex: 1,
                               child: RadioListTile(
-                                value: 'true',
+                                value: true,
                                 groupValue: chills,
                                 title: Text("YES"),
                                 onChanged: (newValue) =>
@@ -650,7 +651,7 @@ class _SignUpState extends State<SignUp> {
                             Expanded(
                               flex: 1,
                               child: RadioListTile(
-                                value: 'false',
+                                value: false,
                                 groupValue: chills,
                                 title: Text("NO"),
                                 onChanged: (newValue) =>
@@ -667,7 +668,7 @@ class _SignUpState extends State<SignUp> {
                             Expanded(
                               flex: 1,
                               child: RadioListTile(
-                                value: 'true',
+                                value: true,
                                 groupValue: cough,
                                 title: Text("YES"),
                                 onChanged: (newValue) =>
@@ -679,7 +680,7 @@ class _SignUpState extends State<SignUp> {
                             Expanded(
                               flex: 1,
                               child: RadioListTile(
-                                value: 'false',
+                                value: false,
                                 groupValue: cough,
                                 title: Text("NO"),
                                 onChanged: (newValue) =>
@@ -696,7 +697,7 @@ class _SignUpState extends State<SignUp> {
                             Expanded(
                               flex: 1,
                               child: RadioListTile(
-                                value: 'true',
+                                value: true,
                                 groupValue: difficultBreathing,
                                 title: Text("YES"),
                                 onChanged: (newValue) => setState(
@@ -708,7 +709,7 @@ class _SignUpState extends State<SignUp> {
                             Expanded(
                               flex: 1,
                               child: RadioListTile(
-                                value: 'false',
+                                value: false,
                                 groupValue: difficultBreathing,
                                 title: Text("NO"),
                                 onChanged: (newValue) => setState(
@@ -725,7 +726,7 @@ class _SignUpState extends State<SignUp> {
                             Expanded(
                               flex: 1,
                               child: RadioListTile(
-                                value: 'true',
+                                value: true,
                                 groupValue: pcrTest,
                                 title: Text("YES"),
                                 onChanged: (newValue) =>
@@ -737,7 +738,7 @@ class _SignUpState extends State<SignUp> {
                             Expanded(
                               flex: 1,
                               child: RadioListTile(
-                                value: 'false',
+                                value: false,
                                 groupValue: pcrTest,
                                 title: Text("NO"),
                                 onChanged: (newValue) =>
@@ -893,7 +894,7 @@ class _SignUpState extends State<SignUp> {
                       final passportNumber = passportNumberController.text;
                       final String sex = dropdownValue;
                       final String county = dropdownValue2;
-                      final String phone_number = phoneNumber;
+                      final String phone_number = '+254' + phoneNumber;
                       final String dob = selectedDate.toString();
                       final String arrival_date = selectedDate2.toString();
                       final String selecetdcountry = selectedcountry;
@@ -911,9 +912,10 @@ class _SignUpState extends State<SignUp> {
                       final FollowUp followup = await _showDialog(
                           difficultBreathing,
                           fever,
-                          //thermalGun,
+                          feverish,
                           cough,
                           chills,
+                          pcrTest,
                           firstName,
                           middleName,
                           lastName,
@@ -999,12 +1001,13 @@ class _SignUpState extends State<SignUp> {
 }
 
 // ignore: missing_return
-Future<FollowUp> _showDialog(
-    String difficultBreathing,
-    String fever,
-    // thermalGun,
-    String cough,
-    String chills,
+Future _showDialog(
+    bool difficultBreathing,
+    bool fever,
+    bool feverish,
+    bool cough,
+    bool chills,
+    bool pcrTest,
     String firstName,
     String middleName,
     String lastName,
@@ -1026,95 +1029,69 @@ Future<FollowUp> _showDialog(
     String village,
     String postalAddress,
     String sublocation) async {
-  final String apiUrl =
-      'http://ears-api.mhealthkenya.co.ke/api/register/airline/contacts';
+  final String apiUrl = 'https://ears.health.go.ke/airport_post/';
   if (county == '' || county == null) {
     county = 'Nairobi';
   }
 
+  AirClass jsonf;
+  jsonf.firstName;
+  jsonf.emailAddress = 'false';
+  jsonf.cormobidity = 'ff';
+  jsonf.objProp = ObjProp(airline: airline, flightNumber: flightNumber);
+
   // String token =
   //   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjbGllbnQiOnsiaWQiOjEsInBob25lX251bWJlciI6IisyNTQ3MjM3ODMwMjEiLCJmaXJzdF9uYW1lIjoicGF0aWVudCIsImNyZWF0ZWRfYXQiOiIyMDIwLTAzLTAxIiwiY3JlYXRlZEF0IjoiMjAyMC0wMy0wMSIsInVwZGF0ZWRBdCI6IjIwMjAtMDMtMTQifSwiaWF0IjoxNTg0MTkxNjUzfQ.dEgJySZ33Mi4jE6lodOgbsTjKMuT7xfW-EkhHKtv-Oc";
-  Map<String, dynamic> req = {
-    "first_name": "Kennedy",
-    "middle_name": "test",
-    "last_name": "Musembi",
-    "sex": "MALE",
-    "dob": "1980-01-06",
-    "passport_number": "909090",
-    "phone_number": "254748050434",
-    "email_address": "test@yahoo.com",
-    "place_of_diagnosis": "KENYA",
-    "date_of_contact": "2020-01-12",
-    "nationality": "KENYA",
-    "county_id": json.encode(139),
-    "subcounty_id": json.encode(111),
-    "ward_id": json.encode(73339),
-    "cormobidity": "no",
-    "drugs": "no",
-    "nok": "milan",
-    "nok_phone_num": "0705255873",
-    "communication_language_id": json.encode(1),
-    "ObjProp": {
-      "airline": "Ethiopian Airline",
-      "flight_number": "TEST",
-      "seat_number": "maclaren",
-      "destination_city": "Opiyo Motors",
-      "travel_history": "KENYA, Uganda, Tanzania",
-      "cough": cough,
-      "breathing_difficulty": difficultBreathing,
-      "fever": fever,
-      "chills": chills,
-      "temperature": fever,
-      "residence": "nanyuki",
-      "estate": "nyk ranch",
-      "postal_address": "123 nyk"
-    }
-  };
-  // ignore: non_constant_identifier_names
-  Map<String, dynamic> ObjProps = {};
 
-  String jsonRequest = json.encode(req);
   final response = await http.post(apiUrl, headers: {
     //'Content-type': 'application/json',
     'Accept': '*/*',
     //'Authorization': 'Bearer $token'
   }, body: {
-    "first_name": "Kennedy",
-    "middle_name": "test",
-    "last_name": "Musembi",
-    "sex": "MALE",
-    "dob": "1980-01-06",
-    "passport_number": "909090",
-    "phone_number": "254748050434",
-    "email_address": "test@yahoo.com",
-    "place_of_diagnosis": "KENYA",
-    "date_of_contact": "2020-01-12",
-    "nationality": "KENYA",
-    "county_id": json.encode(139),
-    "subcounty_id": json.encode(111),
-    "ward_id": json.encode(73339),
+    "first_name": firstName,
+    "middle_name": middleName,
+    "last_name": lastName,
+    "sex": sex,
+    "dob": dob,
+    "passport_number": passportNumber,
+    "phone_number": phone_number,
+    "email_address": email,
+    "place_of_diagnosis": "kenya",
+    "date_of_arrival": arrival_date,
+    "nationality": selectedcountry,
+    "country": selectedcountry,
+    "county": county,
+    "subcounty": "Dagorreti",
+    "ward": "Dago",
     "cormobidity": "no",
+    "hcw_id": json.encode(1),
     "drugs": "no",
-    "nok": "milan",
-    "nok_phone_num": "0705255873",
+    "nok": contactPerson,
+    "nok_phone_num": contactPhone,
     "communication_language_id": json.encode(1),
-    "ObjProp": {
-      "airline": "Ethiopian Airline",
-      "flight_number": "TEST",
-      "seat_number": "maclaren",
-      "destination_city": "Opiyo Motors",
-      "travel_history": "KENYA, Uganda, Tanzania",
-      "cough": "cough",
-      "breathing_difficulty": "difficultBreathing",
-      "fever": "fever",
-      "chills": "chills",
-      "temperature": "fever",
-      "residence": "nanyuki",
-      "estate": "nyk ranch",
-      "postal_address": "123 nyk"
-    }
+    "airline": airline,
+    "flight_number": flightNumber,
+    "seat_number": seatNumber,
+    "destination_city": destinationCity,
+    "countries_visited": countriesVisited,
+    "cough": json.encode(cough),
+    "covid_pcr": json.encode(pcrTest),
+    "breathing_difficulty": json.encode(difficultBreathing),
+    "fever": json.encode(fever),
+    "chills": json.encode(chills),
+    "feverish": json.encode(feverish),
+    "measured_temperature": json.encode(0),
+    "arrival_airport_code": arrival_date,
+    "released": json.encode(false),
+    "risk_assessment_referal": json.encode(false),
+    "designated_hospital_referal": json.encode(false),
+    "reference_facility": json.encode(false),
+    "residence": village,
+    "estate": sublocation,
+    "postal_address": postalAddress,
+    "ObjProp": json.encode(jsonf)
   }).timeout(
-    Duration(seconds: 9),
+    Duration(seconds: 3),
     onTimeout: () {
       // time has run out, do what you wanted to do
       return null;
@@ -1125,8 +1102,9 @@ Future<FollowUp> _showDialog(
     if (response.statusCode == 200) {
       final String responseString = response.body;
       print(responseString);
+      print(phone_number);
 
-      if (responseString.contains("true")) {
+      if (responseString.contains("Successfully")) {
         Fluttertoast.showToast(
             msg:
                 "Successfully Registered as an Air Traveller. \n Log in to check your QR Code.",
@@ -1136,23 +1114,12 @@ Future<FollowUp> _showDialog(
             backgroundColor: Colors.green,
             textColor: Colors.white,
             fontSize: 16.0);
-      } else if (responseString.contains('exists') ||
-          responseString.contains('zilikamilika')) {
+      } else if (responseString.contains('Exists')) {
         Fluttertoast.showToast(
             msg: "Client with details already exists",
             toastLength: Toast.LENGTH_SHORT,
             gravity: ToastGravity.CENTER_RIGHT,
             timeInSecForIosWeb: 1,
-            backgroundColor: Colors.red,
-            textColor: Colors.white,
-            fontSize: 16.0);
-      } else if (responseString.contains('already recorded')) {
-        Fluttertoast.showToast(
-            msg:
-                "Your response for day 7 was already recorded more than once and your next submission is expected tomorrow. For any further information kindly call EOC.",
-            toastLength: Toast.LENGTH_SHORT,
-            gravity: ToastGravity.CENTER_RIGHT,
-            timeInSecForIosWeb: 3,
             backgroundColor: Colors.red,
             textColor: Colors.white,
             fontSize: 16.0);
@@ -1167,7 +1134,7 @@ Future<FollowUp> _showDialog(
             fontSize: 16.0);
       }
 
-      return followUpFromJson(responseString);
+      return responseString;
     } else {
       Fluttertoast.showToast(
           msg: "Error! Could not submit Report, Kindly try again.",
