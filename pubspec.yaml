@@ -41,6 +41,7 @@ dev_dependencies:
   qr_flutter: ^3.1.0
   fluttertoast: ^7.0.2
   flutter_launcher_icons: ^0.7.5
+  barcode_scan: ^3.0.1
 
 flutter_icons:
   image_path: "assets/jitenge.png"
@@ -61,6 +62,11 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:    
     - assets/jitenge.png
+    - assets/qr_code.png
+    - assets/truck.png
+    - assets/homecare.png
+    - assets/airtravel.png
+    - assets/driver.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

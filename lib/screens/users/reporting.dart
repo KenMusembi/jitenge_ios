@@ -260,11 +260,19 @@ class _ReportState extends State<Report> {
                   padding: EdgeInsets.fromLTRB(30.0, 0.0, 20.0, 5.0),
                   child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
                         firstName == null
                             ? Container()
-                            : Text('Reporting for $firstName'),
+                            : Padding(
+                                padding: const EdgeInsets.fromLTRB(
+                                    70.0, 0.0, 0.0, 0.0),
+                                child: Text(
+                                  'Reporting for $firstName',
+                                  style: TextStyle(
+                                      color: Colors.blue, fontSize: 18),
+                                ),
+                              ),
                         SizedBox(
                           height: 5.0,
                         ),
@@ -278,7 +286,7 @@ class _ReportState extends State<Report> {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        SizedBox(height: 30.0),
+                        SizedBox(height: 20.0),
                         _user == null
                             ? Container()
                             : Text(
