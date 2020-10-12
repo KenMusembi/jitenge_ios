@@ -34,6 +34,7 @@ class Airtaveler extends StatefulWidget {
 
 class _AirtavelerState extends State<Airtaveler> {
   Future<List<Client>> _clients;
+  FollowUp _user;
   String phoneNumber;
   String phoneIsoCode;
   bool visible = false;
@@ -118,8 +119,13 @@ class _AirtavelerState extends State<Airtaveler> {
                       SizedBox(height: 10.0),
                       Material(
                           child: InkWell(
-                        onTap: () {
-                          scanAirAttestation(context);
+                        onTap: () async {
+                          final FollowUp followup =
+                              await scanAirAttestation(context);
+                          setState(() {
+                            _user = followup;
+                            showQRDialog(context, _user.success, _user.message);
+                          });
                         },
                         child: Image.asset(
                           'assets/qr_code.png',
@@ -583,7 +589,7 @@ Future<bool> _exitApp(BuildContext context) {
       false;
 }
 
-Future scanAirAttestation(BuildContext context) async {
+Future<FollowUp> scanAirAttestation(BuildContext context) async {
   var options = ScanOptions(
       // set the options
       );
@@ -594,7 +600,7 @@ Future scanAirAttestation(BuildContext context) async {
   print('object');
 
   final String apiUrl =
-      'http://ears-covid.mhealthkenya.co.ke/api/air/traveller/details';
+      'http://ears-api.mhealthkenya.co.ke/api/air/traveller/details';
 
   final response = await http.post(apiUrl, body: {
     "air_traveller_uuid": json.encode(code),
@@ -602,204 +608,12 @@ Future scanAirAttestation(BuildContext context) async {
   try {
     if (response.statusCode == 200) {
       final String responseString = code;
-      print(result);
+      print('2');
       print(responseString);
 
-      //return loginFromJson(responseString);
+      return followUpFromJson(responseString);
       //this._outputController.text = barcode;
-      return showDialog(
-          context: context,
-          child: AlertDialog(
-            title: Text('FirstName Second Name'),
-            content: Text(
-              'Air Traveler',
-              style: TextStyle(color: Colors.black38),
-            ),
-            //contentPadding: EdgeInsets.fromLTRB(10.0, 0.0, 0.0, 0.0),
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(0.0),
-                side: BorderSide(color: Colors.white)),
-            actions: <Widget>[
-              StatefulBuilder(
-                builder: (context, setState) {
-                  var thermalGun;
-                  var bodytempController;
-                  return SingleChildScrollView(
-                    //width: 700,
-                    //height: 500,
-                    child: SizedBox(
-                      width: 700,
-                      child: Column(
-                        children: <Widget>[
-                          Text('Passport/ID/DL No.'),
-                          SizedBox(height: 10.0),
-                          Text('Phone'),
-                          Text('Airline'),
-                          Text('Seat Number'),
-                          Text('Country of Origin'),
-                          TextField(
-                            controller: bodytempController,
-                            decoration: InputDecoration(
-                                border: OutlineInputBorder(),
-                                hintText: 'Measured temperature? eg. 36.5'),
-                          ),
-                          TextField(
-                            controller: bodytempController,
-                            decoration: InputDecoration(
-                                border: OutlineInputBorder(),
-                                hintText: 'Airport Arrival Code'),
-                          ),
-                          Text('Has the traveller arrived or is in transit?'),
-                          Row(
-                            children: <Widget>[
-                              Expanded(
-                                flex: 1,
-                                child: RadioListTile(
-                                  value: 'YES',
-                                  groupValue: thermalGun,
-                                  title: Text("IN TRANSIT"),
-                                  onChanged: (newValue) => setState(() {
-                                    thermalGun = newValue;
-                                    //_disable = true;
-                                  }),
-                                  //setState(() => thermalGun = newValue),
-                                  //activeColor: Colors.red,
-                                  //selected: false,
-                                ),
-                              ),
-                              Expanded(
-                                flex: 1,
-                                child: RadioListTile(
-                                  value: 'NO',
-                                  groupValue: thermalGun,
-                                  title: Text("ARRIVED"),
-                                  onChanged: (newValue) => setState(() {
-                                    thermalGun = newValue;
-                                    //_disable = false;
-                                  }),
-                                  //activeColor: Colors.red,
-                                  //selected: true,
-                                ),
-                              ),
-                            ],
-                          ),
-                          Text('Released?'),
-                          Row(
-                            children: <Widget>[
-                              Expanded(
-                                flex: 1,
-                                child: RadioListTile(
-                                  value: 'YES',
-                                  groupValue: thermalGun,
-                                  title: Text("YES"),
-                                  onChanged: (newValue) => setState(() {
-                                    thermalGun = newValue;
-                                    //_disable = true;
-                                  }),
-                                  //setState(() => thermalGun = newValue),
-                                  //activeColor: Colors.red,
-                                  //selected: false,
-                                ),
-                              ),
-                              Expanded(
-                                flex: 1,
-                                child: RadioListTile(
-                                  value: 'NO',
-                                  groupValue: thermalGun,
-                                  title: Text("NO"),
-                                  onChanged: (newValue) => setState(() {
-                                    thermalGun = newValue;
-                                    //_disable = false;
-                                  }),
-                                  //activeColor: Colors.red,
-                                  //selected: true,
-                                ),
-                              ),
-                            ],
-                          ),
-                          Text('Referred for risk assesment at airport?'),
-                          Row(
-                            children: <Widget>[
-                              Expanded(
-                                flex: 1,
-                                child: RadioListTile(
-                                  value: 'YES',
-                                  groupValue: thermalGun,
-                                  title: Text("YES"),
-                                  onChanged: (newValue) => setState(() {
-                                    thermalGun = newValue;
-                                    //_disable = true;
-                                  }),
-                                  //setState(() => thermalGun = newValue),
-                                  //activeColor: Colors.red,
-                                  //selected: false,
-                                ),
-                              ),
-                              Expanded(
-                                flex: 1,
-                                child: RadioListTile(
-                                  value: 'NO',
-                                  groupValue: thermalGun,
-                                  title: Text("NO"),
-                                  onChanged: (newValue) => setState(() {
-                                    thermalGun = newValue;
-                                    //_disable = false;
-                                  }),
-                                  //activeColor: Colors.red,
-                                  //selected: true,
-                                ),
-                              ),
-                            ],
-                          ),
-                          Text('Referred to designated hospital?'),
-                          Row(
-                            children: <Widget>[
-                              Expanded(
-                                flex: 1,
-                                child: RadioListTile(
-                                  value: 'YES',
-                                  groupValue: thermalGun,
-                                  title: Text("YES"),
-                                  onChanged: (newValue) => setState(() {
-                                    thermalGun = newValue;
-                                    //_disable = true;
-                                  }),
-                                  //setState(() => thermalGun = newValue),
-                                  //activeColor: Colors.red,
-                                  //selected: false,
-                                ),
-                              ),
-                              Expanded(
-                                flex: 1,
-                                child: RadioListTile(
-                                  value: 'NO',
-                                  groupValue: thermalGun,
-                                  title: Text("NO"),
-                                  onChanged: (newValue) => setState(() {
-                                    thermalGun = newValue;
-                                    //_disable = false;
-                                  }),
-                                  //activeColor: Colors.red,
-                                  //selected: true,
-                                ),
-                              ),
-                            ],
-                          ),
-                          FlatButton(
-                            onPressed: () {
-                              Navigator.of(context).pop(false);
-                            },
-                            child: Text('Cancel'),
-                          ),
-                        ],
-                      ),
-                    ),
-                    //  ),
-                  );
-                },
-              ),
-            ],
-          ));
+
     } else {
       Fluttertoast.showToast(
           msg: "Please ensure you have a steady internet connection",
@@ -820,4 +634,198 @@ Future scanAirAttestation(BuildContext context) async {
         textColor: Colors.white,
         fontSize: 16.0);
   }
+}
+
+showQRDialog(context, bool success, String message) {
+  AlertDialog(
+    title: Text('$success' + 'FirstName Second Name'),
+    content: Text(
+      'Air Traveler',
+      style: TextStyle(color: Colors.black38),
+    ),
+    //contentPadding: EdgeInsets.fromLTRB(10.0, 0.0, 0.0, 0.0),
+    shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(0.0),
+        side: BorderSide(color: Colors.white)),
+    actions: <Widget>[
+      StatefulBuilder(
+        builder: (context, setState) {
+          var thermalGun;
+          var bodytempController;
+          return SingleChildScrollView(
+            //width: 700,
+            //height: 500,
+            child: SizedBox(
+              width: 700,
+              child: Column(
+                children: <Widget>[
+                  Text('Passport/ID/DL No.'),
+                  SizedBox(height: 10.0),
+                  Text('Phone'),
+                  Text('Airline'),
+                  Text('Seat Number'),
+                  Text('Country of Origin'),
+                  TextField(
+                    controller: bodytempController,
+                    decoration: InputDecoration(
+                        border: OutlineInputBorder(),
+                        hintText: 'Measured temperature? eg. 36.5'),
+                  ),
+                  TextField(
+                    controller: bodytempController,
+                    decoration: InputDecoration(
+                        border: OutlineInputBorder(),
+                        hintText: 'Airport Arrival Code'),
+                  ),
+                  Text('Has the traveller arrived or is in transit?'),
+                  Row(
+                    children: <Widget>[
+                      Expanded(
+                        flex: 1,
+                        child: RadioListTile(
+                          value: 'YES',
+                          groupValue: thermalGun,
+                          title: Text("IN TRANSIT"),
+                          onChanged: (newValue) => setState(() {
+                            thermalGun = newValue;
+                            //_disable = true;
+                          }),
+                          //setState(() => thermalGun = newValue),
+                          //activeColor: Colors.red,
+                          //selected: false,
+                        ),
+                      ),
+                      Expanded(
+                        flex: 1,
+                        child: RadioListTile(
+                          value: 'NO',
+                          groupValue: thermalGun,
+                          title: Text("ARRIVED"),
+                          onChanged: (newValue) => setState(() {
+                            thermalGun = newValue;
+                            //_disable = false;
+                          }),
+                          //activeColor: Colors.red,
+                          //selected: true,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Text('Released?'),
+                  Row(
+                    children: <Widget>[
+                      Expanded(
+                        flex: 1,
+                        child: RadioListTile(
+                          value: 'YES',
+                          groupValue: thermalGun,
+                          title: Text("YES"),
+                          onChanged: (newValue) => setState(() {
+                            thermalGun = newValue;
+                            //_disable = true;
+                          }),
+                          //setState(() => thermalGun = newValue),
+                          //activeColor: Colors.red,
+                          //selected: false,
+                        ),
+                      ),
+                      Expanded(
+                        flex: 1,
+                        child: RadioListTile(
+                          value: 'NO',
+                          groupValue: thermalGun,
+                          title: Text("NO"),
+                          onChanged: (newValue) => setState(() {
+                            thermalGun = newValue;
+                            //_disable = false;
+                          }),
+                          //activeColor: Colors.red,
+                          //selected: true,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Text('Referred for risk assesment at airport?'),
+                  Row(
+                    children: <Widget>[
+                      Expanded(
+                        flex: 1,
+                        child: RadioListTile(
+                          value: 'YES',
+                          groupValue: thermalGun,
+                          title: Text("YES"),
+                          onChanged: (newValue) => setState(() {
+                            thermalGun = newValue;
+                            //_disable = true;
+                          }),
+                          //setState(() => thermalGun = newValue),
+                          //activeColor: Colors.red,
+                          //selected: false,
+                        ),
+                      ),
+                      Expanded(
+                        flex: 1,
+                        child: RadioListTile(
+                          value: 'NO',
+                          groupValue: thermalGun,
+                          title: Text("NO"),
+                          onChanged: (newValue) => setState(() {
+                            thermalGun = newValue;
+                            //_disable = false;
+                          }),
+                          //activeColor: Colors.red,
+                          //selected: true,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Text('Referred to designated hospital?'),
+                  Row(
+                    children: <Widget>[
+                      Expanded(
+                        flex: 1,
+                        child: RadioListTile(
+                          value: 'YES',
+                          groupValue: thermalGun,
+                          title: Text("YES"),
+                          onChanged: (newValue) => setState(() {
+                            thermalGun = newValue;
+                            //_disable = true;
+                          }),
+                          //setState(() => thermalGun = newValue),
+                          //activeColor: Colors.red,
+                          //selected: false,
+                        ),
+                      ),
+                      Expanded(
+                        flex: 1,
+                        child: RadioListTile(
+                          value: 'NO',
+                          groupValue: thermalGun,
+                          title: Text("NO"),
+                          onChanged: (newValue) => setState(() {
+                            thermalGun = newValue;
+                            //_disable = false;
+                          }),
+                          //activeColor: Colors.red,
+                          //selected: true,
+                        ),
+                      ),
+                    ],
+                  ),
+                  FlatButton(
+                    onPressed: () {
+                      Navigator.of(context).pop(false);
+                    },
+                    child: Text('Cancel'),
+                  ),
+                ],
+              ),
+            ),
+            //  ),
+          );
+        },
+      ),
+    ],
+  );
 }
