@@ -3,14 +3,14 @@
 
 workflows:
     ios-flutter:
-        name: iOS App with Flutter Module
+        name: Jitenge iOS 
         environment:
             vars:
                 FLUTTER_MODULE_DIR: "{{ ADD YOUR PATH HERE }}"
                 HOST_IOS_APP_DIR: "{{ ADD YOUR PATH HERE }}"
                 XCODE_PROJECT: "{{ ADD WORKSPACE NAME HERE }}"
                 XCODE_SCHEME: "{{ ADD SCHEME NAME HERE }}"
-            xcode: edge
+            xcode: latest
             cocoapods: default
             flutter: stable
         scripts:
@@ -21,5 +21,11 @@ workflows:
                 flutter build ios --debug --no-codesign
            
         artifacts:
-            - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.app
-            - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.dSYM
+            - build/**/outputs/**/*.aab
+        publishing:
+          email:
+            recipients:
+              - kenmusembi21@gmail.com
+        notify:
+          success: true     # To not receive a notification when a build succeeds
+          failure: true     # To not receive a notification when a build fails
