@@ -26,6 +26,6 @@ workflows:
           email:
             recipients:
               - kenmusembi21@gmail.com
-        notify:
-          success: true     # To not receive a notification when a build succeeds
-          failure: true     # To not receive a notification when a build fails
+            notify:
+              success: true     # To not receive a notification when a build succeeds
+              failure: true     # To not receive a notification when a build fails
