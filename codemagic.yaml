@@ -8,8 +8,8 @@ workflows:
             vars:
                # FLUTTER_MODULE_DIR: "{{ ADD YOUR PATH HERE }}"
                # HOST_IOS_APP_DIR: "{{ ADD YOUR PATH HERE }}"
-               # XCODE_PROJECT: "{{ ADD WORKSPACE NAME HERE }}"
-               # XCODE_SCHEME: "{{ ADD SCHEME NAME HERE }}"
+                XCODE_PROJECT: "{{ JITENGE IOS }}"
+                XCODE_SCHEME: "{{ JITENGE IOS }}"
             xcode: edge
             cocoapods: default
             flutter: stable
@@ -26,8 +26,7 @@ workflows:
                 xcodebuild build -project "$XCODE_PROJECT.xcodeproj" -scheme "$XCODE_SCHEME" CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
            
         artifacts:
-            - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.app
-            - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.dSYM
+            - build/ios/ipa/*.ipa
         publishing:
           email:
             recipients:
