@@ -10,7 +10,7 @@ workflows:
                 HOST_IOS_APP_DIR: "{{ ADD YOUR PATH HERE }}"
                 XCODE_PROJECT: "{{ ADD WORKSPACE NAME HERE }}"
                 XCODE_SCHEME: "{{ ADD SCHEME NAME HERE }}"
-            xcode: latest
+            xcode: edge
             cocoapods: default
             flutter: stable
         scripts:
@@ -18,11 +18,16 @@ workflows:
                 # build Flutter module
                 cd $FLUTTER_MODULE_DIR
                 flutter packages get
-                flutter build ios --debug --no-codesign
+                flutter build ios-framework --output=$FCI_BUILD_DIR/$HOST_IOS_APP_DIR/Flutter
+            - |
+                # build iOS project
+                cd $HOST_IOS_APP_DIR
+                pod install
+                xcodebuild build -project "$XCODE_PROJECT.xcodeproj" -scheme "$XCODE_SCHEME" CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
            
         artifacts:
-            - build/**/outputs/**/*.aab
-            - build/ios/ipa/*.ipa
+            - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.app
+            - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.dSYM
         publishing:
           email:
             recipients:
