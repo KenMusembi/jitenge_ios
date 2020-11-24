@@ -18,7 +18,7 @@ workflows:
                 # build Flutter module
                 cd $FLUTTER_MODULE_DIR
                 flutter packages get
-                flutter/bin/flutter build ios --debug --no-codesign
+                flutter build ios --debug --no-codesign
            
         artifacts:
             - build/**/outputs/**/*.aab
