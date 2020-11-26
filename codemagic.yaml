@@ -21,7 +21,7 @@ workflows:
             - |
                 # build iOS project
                 
-                pod install
+               
                 xcodebuild build -project "$XCODE_PROJECT.xcodeproj" -scheme "$XCODE_SCHEME" CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
            
         artifacts:
