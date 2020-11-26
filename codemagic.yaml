@@ -16,12 +16,11 @@ workflows:
         scripts:
             - |
                 # build Flutter module
-                cd $FLUTTER_MODULE_DIR
-                flutter packages get
+                
                 flutter build ios --debug --no-codesign
             - |
                 # build iOS project
-                cd $HOST_IOS_APP_DIR
+                
                 pod install
                 xcodebuild build -project "$XCODE_PROJECT.xcodeproj" -scheme "$XCODE_SCHEME" CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
            
