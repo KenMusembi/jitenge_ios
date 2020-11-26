@@ -19,7 +19,7 @@ workflows:
                 
                 flutter packages get
 
-                flutter build ios --debug --no-codesign
+                flutter build ios --release --no-codesign
             - |
                 # build iOS project
                 
