@@ -17,6 +17,7 @@ workflows:
             - |
                 # build Flutter module
                 
+                flutter packages get
                 flutter build ios --no-codesign
             - |
                 # build iOS project
