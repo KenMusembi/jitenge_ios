@@ -27,6 +27,9 @@ workflows:
            
         artifacts:
             - build/ios/ipa/*.ipa
+            - build/**/outputs/**/*.aab
+            - build/**/outputs/**/mapping.txt
+            - flutter_drive.log
         publishing:
           email:
             recipients:
