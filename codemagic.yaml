@@ -18,8 +18,8 @@ workflows:
                 # build Flutter module
                 
                 flutter packages get
-                flutter build appbundle
-                flutter build ios --release --no-codesign
+
+                flutter build ios --debug --no-codesign
             - |
                 # build iOS project
                 
