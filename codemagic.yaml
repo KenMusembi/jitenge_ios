@@ -22,7 +22,7 @@ workflows:
                 # build iOS project
                 
                
-                xcode-project build-ipa --workspace "ios/Runner.xcworkspace" --scheme "Runner"  CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
+                xcode-project build-ipa --workspace "ios/Runner.xcworkspace" --scheme "Runner" 
            
         artifacts:
             - build/ios/ipa/*.ipa
