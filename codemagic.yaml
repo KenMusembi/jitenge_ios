@@ -24,7 +24,7 @@ workflows:
                 # build iOS project
                 
                
-                xcode-project build-ipa --workspace "ios/Runner.xcworkspace" --scheme "Runner" 
+                
            
         artifacts:
             - build/ios/ipa/*.ipa
